@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Book, Code, FileAudio } from "lucide-react"
+import { ArrowRight, Book, Code, FileAudio, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function DocsPage() {
@@ -60,6 +60,41 @@ export default function DocsPage() {
             </Button>
           </Link>
         </div>
+      </div>
+
+      <div className="rounded-lg border p-6 bg-muted/30">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="bg-primary/10 p-2 rounded-full">
+            <MessageCircle className="h-6 w-6 text-primary" />
+          </div>
+          <h2 className="text-2xl font-bold tracking-tight">Community Support</h2>
+        </div>
+        <p className="text-muted-foreground mb-4">
+          Join our vibrant community on Discord to get help, share your projects, and connect with other Vexa developers.
+          Our team is active on Discord to provide support and answer your questions.
+        </p>
+        <Link href="https://discord.com/invite/Ga9duGkVz9" target="_blank" rel="noopener noreferrer">
+          <Button className="gap-2">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="h-4 w-4"
+            >
+              <circle cx="9" cy="12" r="1"/>
+              <circle cx="15" cy="12" r="1"/>
+              <path d="M7.5 7.2c3.5-1 5.5-1 9 0"/>
+              <path d="M7 16.2c3.5 1 6.5 1 10 0"/>
+              <path d="M15.5 17c0 1 1.5 3 2 3 1.5 0 2.833-1.667 3.5-3 .667-1.667.5-5.833-1.5-11.5-1.457-1.015-3-1.34-4.5-1.5l-1 2.5"/>
+              <path d="M8.5 17c0 1-1.356 3-1.832 3-1.429 0-2.698-1.667-3.333-3-.635-1.667-.48-5.833 1.428-11.5C6.151 4.485 7.545 4.16 9 4l1 2.5"/>
+            </svg>
+            Join our Discord Community
+          </Button>
+        </Link>
       </div>
 
       <div className="space-y-4">
