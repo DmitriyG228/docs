@@ -6,6 +6,7 @@ import { ArrowRight, Bot, FileAudio, Zap, Server, Globe, RefreshCw, CheckCircle2
 import { Button } from "@/components/ui/button"
 import { trackEvent } from '@/lib/analytics'
 import PageViewTracker from '@/components/analytics/PageViewTracker';
+import { useEffect } from "react";
 
 export default function LandingPage() {
   const handleSignupClick = () => {
@@ -18,11 +19,15 @@ export default function LandingPage() {
     trackEvent('discord_join_click', { location: 'home_cta' });
   };
 
+  // Track page view manually on component mount instead of using PageViewTracker component
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      trackEvent('page_view', { page: 'home' });
+    }
+  }, []);
+
   return (
     <div className="flex flex-col gap-10 py-8">
-      {/* Track page view */}
-      <PageViewTracker title="Vexa - Home" />
-      
       {/* Hero Section */}
       <section className="relative">
         <div className="container space-y-6 py-10 md:py-16">

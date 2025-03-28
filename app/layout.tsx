@@ -12,8 +12,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Vexa - Meeting Intelligence API',
-  description: 'Smart meeting automation and analytics for your applications',
+  title: 'Vexa | Meeting Transcription API with Bot Integration',
+  description: 'Multilingual real-time transcription across all major meeting platforms. Integrate meeting bots, streaming audio processing, and knowledge extraction with our API.',
   icons: {
     icon: [
       {
