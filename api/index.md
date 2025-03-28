@@ -47,7 +47,7 @@ https://api.vexa.ai/v1
 If you need help with the API:
 
 - Check our [FAQ](https://vexa.ai/faq)
-- Join our [Discord community](https://discord.gg/vexa)
+- Join our [Discord community](https://discord.gg/Ga9duGkVz9)
 - Contact support at support@vexa.ai
 
 ## API Updates

@@ -73,7 +73,7 @@ export default function DocsPage() {
           Join our vibrant community on Discord to get help, share your projects, and connect with other Vexa developers.
           Our team is active on Discord to provide support and answer your questions.
         </p>
-        <Link href="https://discord.com/invite/Ga9duGkVz9" target="_blank" rel="noopener noreferrer">
+        <Link href="https://discord.gg/Ga9duGkVz9" target="_blank" rel="noopener noreferrer">
           <Button className="gap-2">
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
