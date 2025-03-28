@@ -215,3 +215,4 @@ export function getWelcomeEmailConfig(props: WelcomeEmailProps) {
     }
   };
 } 
+ 

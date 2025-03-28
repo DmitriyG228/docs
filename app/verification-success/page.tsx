@@ -1,7 +1,20 @@
+'use client';
+
 import Link from "next/link";
 import { CheckCircle } from "lucide-react";
+import { useEffect } from "react";
+import { trackEvent } from "@/lib/analytics";
 
 export default function VerificationSuccessPage() {
+  // Track verification success on page load
+  useEffect(() => {
+    trackEvent('email_verification_success');
+  }, []);
+
+  const handleDiscordClick = () => {
+    trackEvent('discord_join_click', { location: 'verification_success' });
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-50">
       <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md text-center">
@@ -27,6 +40,7 @@ export default function VerificationSuccessPage() {
             className="inline-flex items-center justify-center w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={handleDiscordClick}
           >
             Join Our Discord
           </Link>

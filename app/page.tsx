@@ -1,11 +1,28 @@
+'use client';
+
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, Bot, FileAudio, Zap, Server, Globe, RefreshCw, CheckCircle2, Clock, Video } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { trackEvent } from '@/lib/analytics'
+import PageViewTracker from '@/components/analytics/PageViewTracker';
 
 export default function LandingPage() {
+  const handleSignupClick = () => {
+    // Track signup button click
+    trackEvent('signup_button_click', { location: 'home_cta' });
+  };
+
+  const handleDiscordClick = () => {
+    // Track discord join click
+    trackEvent('discord_join_click', { location: 'home_cta' });
+  };
+
   return (
     <div className="flex flex-col gap-10 py-8">
+      {/* Track page view */}
+      <PageViewTracker title="Vexa - Home" />
+      
       {/* Hero Section */}
       <section className="relative">
         <div className="container space-y-6 py-10 md:py-16">
@@ -267,12 +284,17 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
-                <Link href="/signup">
+                <Link href="/signup" onClick={handleSignupClick}>
                   <Button size="lg" variant="secondary" className="w-full md:w-auto">
                     Sign Up Free
                   </Button>
                 </Link>
-                <Link href="https://discord.gg/Ga9duGkVz9" target="_blank" rel="noopener noreferrer">
+                <Link 
+                  href="https://discord.gg/Ga9duGkVz9" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={handleDiscordClick}
+                >
                   <Button size="lg" variant="outline" className="w-full md:w-auto border-primary-foreground/20 bg-primary-foreground/10 hover:bg-primary-foreground/20">
                     Join Discord
                   </Button>

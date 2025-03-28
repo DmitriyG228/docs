@@ -30,6 +30,9 @@ export const metadata: Metadata = {
   }
 }
 
+// Google Analytics Measurement ID from environment variable
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
 export default function RootLayout({
   children,
 }: {
@@ -51,6 +54,21 @@ export default function RootLayout({
             });
           `
         }} />
+        
+        {/* Google Analytics - Inline script for better detection */}
+        {GA_MEASUREMENT_ID && GA_MEASUREMENT_ID !== 'G-MEASUREMENT_ID' && (
+          <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} />
+            <script dangerouslySetInnerHTML={{
+              __html: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_MEASUREMENT_ID}');
+              `
+            }} />
+          </>
+        )}
       </head>
       <body className={inter.className}>
         <ThemeProvider

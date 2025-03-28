@@ -21,6 +21,33 @@ The beta signup form integrates with SendPulse to collect and manage applicant i
      SENDPULSE_MAILING_LIST_ID=your_mailing_list_id
      ```
 
+## Google Analytics Setup
+
+The site includes basic Google Analytics tracking. Follow these steps to set it up:
+
+1. Create a Google Analytics 4 property at [analytics.google.com](https://analytics.google.com) if you don't have one
+2. Get your Measurement ID (starts with "G-")
+3. Configure environment variables:
+   - Add your Measurement ID to the `.env` file:
+     ```
+     NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+     ```
+
+Pre-configured events:
+- Page views (automatically tracked)
+- `signup_button_click`: When users click the signup button
+- `discord_join_click`: When users click to join Discord
+- `email_verification_success`: When users successfully verify their email
+
+To track custom events in your code, use the `trackEvent` function:
+
+```typescript
+import { trackEvent } from '@/lib/analytics';
+
+// Track a custom event
+trackEvent('event_name', { param1: 'value1', param2: 'value2' });
+```
+
 ## Development
 
 Install dependencies:
@@ -47,6 +74,7 @@ The following environment variables are used in the project:
 | `SENDPULSE_SECRET` | Your SendPulse API Secret |
 | `SENDPULSE_MAILING_LIST_ID` | The ID of your SendPulse mailing list for beta applicants |
 | `NEXT_PUBLIC_SITE_URL` | The URL of your site (used for SEO) |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Your Google Analytics 4 Measurement ID |
 
 ## API Routes
 
