@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ModeToggle } from '@/components/mode-toggle'
 import { Github, Linkedin } from 'lucide-react'
+import { CookieConsent } from '@/components/cookie-consent'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -12,6 +14,20 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'Vexa - Meeting Intelligence API',
   description: 'Smart meeting automation and analytics for your applications',
+  icons: {
+    icon: [
+      {
+        url: '/logodark.svg',
+        href: '/logodark.svg',
+      }
+    ],
+    apple: [
+      {
+        url: '/logodark.svg',
+        href: '/logodark.svg',
+      }
+    ]
+  }
 }
 
 export default function RootLayout({
@@ -45,14 +61,16 @@ export default function RootLayout({
         >
           <div className="flex flex-col min-h-screen">
             <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="container flex h-16 items-center justify-between">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Link href="/" className="flex items-center gap-2">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-8 w-8">
-                      <rect width="32" height="32" rx="16" fill="hsl(var(--primary))" />
-                      <path d="M10 8L16 24L22 8" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M8 16H24" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" />
-                    </svg>
+                    <Image
+                      src="/logodark.svg"
+                      alt="Vexa Logo"
+                      width={32}
+                      height={32}
+                      className="h-8 w-8"
+                    />
                     <span className="font-bold text-xl">Vexa</span>
                   </Link>
                 </div>
@@ -84,10 +102,12 @@ export default function RootLayout({
               </div>
             </header>
             <main className="flex-1">
-              {children}
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {children}
+              </div>
             </main>
             <footer className="w-full border-t py-6">
-              <div className="container flex flex-col items-center justify-between gap-4 md:flex-row">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-between gap-4 md:flex-row">
                 <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
                   © {new Date().getFullYear()} Vexa.ai Inc. All rights reserved.
                 </p>
@@ -148,6 +168,7 @@ export default function RootLayout({
                 </div>
               </div>
             </footer>
+            <CookieConsent />
           </div>
         </ThemeProvider>
       </body>
