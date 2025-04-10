@@ -9,7 +9,7 @@ slug: 'vexa-v0-2-google-meet-transcription-api'
 summary: 'Announcing Vexa v0.2 with its open-source, real-time Google Meet transcription API. Send a bot, get live multilingual transcripts.'
 ---
 
-We're excited to announce the release of **Vexa v0.2**, a significant step forward in our mission to provide developers with powerful, **open-source (Apache 2.0 licensed)** real-time transcription capabilities.
+We're excited to announce the release of **Vexa v0.2**, a significant step forward in our mission to provide developers with powerful, **[open-source](https://github.com/Vexa-ai/vexa) (Apache 2.0 licensed)** real-time transcription capabilities.
 
 **What's New in v0.2?**
 
@@ -40,13 +40,13 @@ curl -X POST https://gateway.dev.vexa.ai/bots \
 curl -H "X-API-Key: YOUR_CLIENT_API_KEY" \
   https://gateway.dev.vexa.ai/transcripts/google_meet/xxx-xxxx-xxx
 ```
-*(See full API details and response format in our [API Documentation](https://api.dev.vexa.ai/docs) - link TBC)*
+*(See full API details and response format in our [API Documentation](https://api.dev.vexa.ai/docs))* 
 
 **Building an Open Foundation:**
 
 This release isn't just about the Google Meet bot; it establishes the foundation of our **scalable, open-source microservices architecture**. This design ensures reliability and performance, paving the way for future support for platforms like Zoom and Microsoft Teams, direct audio streaming, and advanced features like real-time LLM processing and knowledge extraction (RAG).
 
-Vexa aims to be an **open-source**, enterprise-grade alternative to recall.ai, built with secure corporate environments in mind where data security, transparency, and compliance are crucial. While this specific API endpoint is currently cloud-based for the beta, **self-deployment of the entire open-source stack** remains a core part of our long-term vision.
+Vexa aims to be an **[open-source](https://github.com/Vexa-ai/vexa)**, enterprise-grade alternative to recall.ai, built with secure corporate environments in mind where data security, transparency, and compliance are crucial. While this specific API endpoint is currently cloud-based for the beta, **self-deployment of the entire open-source stack** remains a core part of our long-term vision. Read more about self-hosting options in our [Deployment Guide](https://github.com/Vexa-ai/vexa/blob/main/DEPLOYMENT.md).
 
 **Closed Beta Access:**
 
@@ -65,19 +65,19 @@ Vexa's API is currently in **closed beta**. We invite developers and teams to ap
 
 **Get Involved with Open Source Vexa:**
 
-Vexa is built **openly** with the community. Check out our roadmap, join the discussion, and consider contributing to the core **open-source project**:
+Vexa is built **openly** with the community. Check out our roadmap, join the discussion, and consider contributing to the core **[open-source project](https://github.com/Vexa-ai/vexa)**:
 
-*   [Project Tasks Board](link-to-roadmap)
-*   [Discord Community](link-to-discord)
+*   [Project Tasks Board](https://github.com/Vexa-ai/vexa/projects)
+*   [Discord Community](https://discord.gg/Ga9duGkVz9)
 *   [GitHub Repository (Open Source)](https://github.com/Vexa-ai/vexa) (Explore contributing guidelines)
 
 We're thrilled to reach this milestone and empower developers with direct access to real-time meeting intelligence built on an **open-source core**. Apply for the beta and let us know what you build!
 
 ---
 **Project Links:**
-*   🌐 [Vexa Website](link-to-website)
-*   💼 [LinkedIn](link-to-linkedin)
-*   🐦 [X (@grankin_d)](https://twitter.com/grankin_d)
-*   💬 [Discord Community](link-to-discord)
-*   📜 **[License (Apache 2.0)](link-to-license)**
+*   🌐 [Vexa Website](https://vexa.ai)
+*   💼 [LinkedIn](https://www.linkedin.com/company/vexa-ai/)
+*   🐦 [X (@grankin_d)](https://x.com/grankin_d)
+*   💬 [Discord Community](https://discord.gg/Ga9duGkVz9)
+*   📜 **[License (Apache 2.0)](https://github.com/Vexa-ai/vexa/blob/main/LICENSE)**
 *   🐙 **[GitHub Repository (Open Source)](https://github.com/Vexa-ai/vexa)**
