@@ -14,6 +14,9 @@ export interface PostData {
   title: string;
   date: string;
   author: string;
+  authorImage?: string; // Optional author image URL
+  authorLinkedIn?: string; // Optional author LinkedIn URL
+  heroImage?: string; // Optional hero image URL
   summary: string;
   contentHtml?: string; // Optional for list view
   [key: string]: any; // Allow other frontmatter fields

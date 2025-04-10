@@ -2,6 +2,9 @@ import { getAllPostSlugs, getPostData, PostData } from '@/lib/posts';
 import { notFound } from 'next/navigation';
 import { formatDate } from '@/lib/utils'; // Assuming a date formatting utility exists
 import { Metadata, ResolvingMetadata } from 'next';
+import Image from 'next/image'; // Import next/image
+import Link from 'next/link'; // Import Link
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // Import Avatar components
 
 interface PostProps {
   params: {
@@ -45,12 +48,55 @@ export default async function Post({ params }: PostProps) {
     notFound();
   }
 
+  // Helper to get initials for Avatar fallback
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase();
+  };
+
   return (
     <article className="container mx-auto px-4 py-8 max-w-3xl">
+      {/* Hero Image */} 
+      {post.heroImage && (
+        <div className="mb-8 overflow-hidden rounded-lg shadow-lg">
+          <Image
+            src={post.heroImage} 
+            alt={`${post.title} hero image`}
+            width={1200} // Adjust width as needed
+            height={630} // Adjust height for aspect ratio (e.g., 1.91:1 for Open Graph)
+            className="w-full h-auto object-cover"
+            priority // Load hero image eagerly
+          />
+        </div>
+      )}
+
       <header className="mb-8">
-        <h1 className="text-4xl font-bold leading-tight mb-2">{post.title}</h1>
-        <div className="text-muted-foreground text-sm">
-          <span>By {post.author}</span> | <span>Published on {formatDate(post.date)}</span>
+        <h1 className="text-4xl font-bold leading-tight mb-4">{post.title}</h1>
+        <div className="flex items-center space-x-4 text-muted-foreground text-sm">
+          {/* Author Avatar and Link */} 
+          {post.authorLinkedIn ? (
+            <Link href={post.authorLinkedIn} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 hover:text-foreground transition-colors">
+              <Avatar className="h-8 w-8">
+                {post.authorImage && <AvatarImage src={post.authorImage} alt={post.author} />}
+                <AvatarFallback>{getInitials(post.author)}</AvatarFallback>
+              </Avatar>
+              <span>{post.author}</span>
+            </Link>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <Avatar className="h-8 w-8">
+                {post.authorImage && <AvatarImage src={post.authorImage} alt={post.author} />}
+                <AvatarFallback>{getInitials(post.author)}</AvatarFallback>
+              </Avatar>
+              <span>{post.author}</span>
+            </div>
+          )}
+          
+          <span>|</span>
+          <span>Published on {formatDate(post.date)}</span>
         </div>
       </header>
 

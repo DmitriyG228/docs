@@ -14,7 +14,20 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'media.licdn.com',
+        port: '',
+        pathname: '/dms/image/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
   },
   experimental: {
     webpackBuildWorker: true,
