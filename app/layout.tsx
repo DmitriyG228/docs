@@ -102,6 +102,9 @@ export default function RootLayout({
                   <Link href="/pricing" className="text-sm font-medium transition-colors hover:text-primary">
                     Pricing
                   </Link>
+                  <Link href="/blog" className="text-sm font-medium transition-colors hover:text-primary">
+                    Blog
+                  </Link>
                   <Link href="/pricing" className="text-sm font-medium transition-colors hover:text-primary">
                     Dashboard
                   </Link>
