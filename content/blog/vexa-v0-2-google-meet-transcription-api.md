@@ -5,8 +5,8 @@ author: 'Dmitry Grankin'
 authorImage: 'https://media.licdn.com/dms/image/v2/C4D03AQFXWMxI1np6hg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1647969193758?e=1749686400&v=beta&t=BeWR1qADrtmw-DZ4-WvvRhmsN91V-jHrGoksgs8mq9E'
 authorLinkedIn: 'https://www.linkedin.com/in/dmitry-grankin/'
 heroImage: '/images/blog/vexa-v0.2-announcement.png' # Reference image in public/images/blog
-slug: 'my-first-post'
-summary: 'This is the beginning of a beautiful blog.'
+slug: 'vexa-v0-2-google-meet-transcription-api'
+summary: 'Announcing Vexa v0.2 with its open-source, real-time Google Meet transcription API. Send a bot, get live multilingual transcripts.'
 ---
 
 We're excited to announce the release of **Vexa v0.2**, a significant step forward in our mission to provide developers with powerful, **open-source (Apache 2.0 licensed)** real-time transcription capabilities.

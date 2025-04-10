@@ -1,0 +1,9 @@
+# public/robots.txt
+User-agent: *
+Allow: /
+
+# Disallow specific paths if needed, e.g.:
+# Disallow: /api/
+# Disallow: /private/
+
+Sitemap: https://yourdomain.com/sitemap.xml # Replace with your actual domain 
