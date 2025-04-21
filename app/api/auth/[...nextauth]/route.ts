@@ -34,19 +34,20 @@ async function findOrCreateUser(email: string, name?: string | null, image?: str
 
     const responseData = await response.json();
 
-    // User created (201) or already exists (409)
-    if (response.ok || response.status === 409) {
-      console.log(`[NextAuth] User found or created: ${email}, ID: ${responseData.id}`);
+    // User created (201) or found (200)
+    // response.ok covers status codes in the 200-299 range.
+    if (response.ok) {
+      const statusLog = response.status === 201 ? 'created' : 'found';
+      console.log(`[NextAuth] User ${statusLog}: ${email}, Status: ${response.status}, ID: ${responseData.id}`);
       // Ensure the response data matches our DbUser structure
       if (responseData && typeof responseData.id === 'number') {
         return responseData as DbUser;
       } else {
          console.error('[NextAuth] User created/found but response format unexpected:', responseData);
-         // If user exists (409) but ID is missing, we have a problem. Maybe try fetching?
-         // For now, return null to prevent login if data is inconsistent.
          return null;
       }
     } else {
+      // Handle potential errors if response.ok is false
       console.error(`[NextAuth] Failed to find or create user. Status: ${response.status}`, responseData);
       return null;
     }

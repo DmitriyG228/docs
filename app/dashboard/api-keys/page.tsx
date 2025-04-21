@@ -67,55 +67,55 @@ export default function ApiKeysPage() {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]) 
   const [visibleKeys, setVisibleKeys] = useState<Record<number, boolean>>({}) // Use token ID as key
   const [newKeyDialogOpen, setNewKeyDialogOpen] = useState(false)
-  const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null)
   const [copiedKey, setCopiedKey] = useState<number | "new" | null>(null) // Use token ID or "new"
   const [isLoading, setIsLoading] = useState(true) // Start loading true to fetch keys
   const [error, setError] = useState<string | null>(null) // Error state
 
+  // *** Define fetchApiKeys function here to be callable from other functions ***
+  const fetchApiKeys = async () => {
+    // Only fetch if session is loaded and authenticated
+    if (sessionStatus !== "authenticated" || !(session as SessionData)?.user?.id) {
+      setIsLoading(false); // Stop loading if not authenticated
+      setApiKeys([]); // Clear keys if not logged in
+      return; // Exit if not authenticated
+    }
+    
+    const userId = (session as SessionData).user?.id; // Get user ID from session
+    if (!isLoading) setIsLoading(true); // Set loading state
+    setError(null); // Clear previous errors
+
+    try {
+      const response = await fetch(`/api/admin/tokens?userId=${userId}`); 
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({})); // Try to parse error
+        throw new Error(errorData.detail || errorData.error || 'Failed to fetch API keys');
+      }
+      
+      const data = await response.json();
+      // *** Log the received data ***
+      console.log("Data received from /api/admin/tokens:", JSON.stringify(data, null, 2)); 
+      
+      // Assuming the GET /admin/users/{id} endpoint returns user details including a 'tokens' array.
+      // *** UPDATED: Read from data.api_tokens ***
+      setApiKeys(data.api_tokens || []); 
+    } catch (err) {
+      console.error("Error fetching keys:", err); // Log error for debugging
+      setError(err instanceof Error ? err.message : 'An unknown error occurred while fetching keys.');
+      toast({
+        title: "Error loading keys",
+        description: err instanceof Error ? err.message : 'Could not load your API keys.',
+        variant: "destructive",
+      });
+      setApiKeys([]); // Clear keys on error
+    } finally {
+      setIsLoading(false); // Turn off loading state
+    }
+  };
+
   // Fetch API keys when the component mounts and session is loaded
   useEffect(() => {
-    // Only fetch if session is loaded and authenticated
-    if (sessionStatus === "authenticated" && (session as SessionData)?.user?.id) {
-      const fetchApiKeys = async () => {
-        // Ensure loading is true when starting fetch
-        if (!isLoading) setIsLoading(true);
-        setError(null);
-        try {
-          const userId = (session as SessionData).user?.id; // Get user ID from session
-          // Note: This requires the GET /api/admin/tokens route to correctly handle
-          // fetching tokens for a specific user, which depends on the main admin-api.
-          // It should call GET /admin/users/{userId} which needs to return user details including tokens.
-          const response = await fetch(`/api/admin/tokens?userId=${userId}`); 
-          
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({})); // Try to parse error
-            throw new Error(errorData.detail || errorData.error || 'Failed to fetch API keys');
-          }
-          
-          const data = await response.json();
-          // Assuming the GET /admin/users/{id} endpoint returns user details including a 'tokens' array.
-          // Need to adjust if the API returns keys differently (e.g., a dedicated /admin/users/{id}/tokens endpoint)
-          setApiKeys(data.tokens || []); 
-        } catch (err) {
-          console.error("Error fetching keys:", err); // Log error for debugging
-          setError(err instanceof Error ? err.message : 'An unknown error occurred while fetching keys.');
-          toast({
-            title: "Error loading keys",
-            description: err instanceof Error ? err.message : 'Could not load your API keys.',
-            variant: "destructive",
-          });
-          setApiKeys([]); // Clear keys on error
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      fetchApiKeys();
-    } else if (sessionStatus === "unauthenticated") {
-      // Handle case where user is not logged in (middleware will handle redirects)
-      setIsLoading(false);
-      setApiKeys([]);
-    } 
-    // If sessionStatus is "loading", isLoading remains true until fetch finishes or determines unauthenticated
+    fetchApiKeys();
   }, [sessionStatus, session]); // Re-run effect when session status or session data changes
 
   // Format date to relative time (e.g., "2 hours ago")
@@ -198,23 +198,22 @@ export default function ApiKeysPage() {
         body: JSON.stringify({ userId: Number(userId) }), // Convert string ID from session if necessary
       });
 
-      const result = await response.json();
+      // const result = await response.json(); // No longer needed here
 
       if (!response.ok) {
-        throw new Error(result.detail || result.error || 'Failed to create API key');
+         // Try to parse error from creation response
+         const errorResult = await response.json().catch(() => ({}));
+        throw new Error(errorResult.detail || errorResult.error || 'Failed to create API key');
       }
 
-      // Assuming the API returns the created token object matching our ApiKey interface
-      const newKey: ApiKey = {
-        ...result,
-        prefix: "sk_", // Assume a standard prefix for display
-        active: true, // Assume active on creation
-        type: 'live' // Assume live type for now
-      };
+      // *** Re-fetch keys after successful creation ***
+      await fetchApiKeys(); // Call the shared function to refresh
 
-      setApiKeys([newKey, ...apiKeys]);
-      setNewlyCreatedKey(newKey.token); // Show the full token value after creation
-      // Reset form (no longer needed as userId is from session)
+      // Remove lines that manually updated local state:
+      // const newKey: ApiKey = { ...result, ... }; 
+      // setApiKeys([newKey, ...apiKeys]); 
+      // setNewlyCreatedKey(newKey.token); 
+
       setNewKeyDialogOpen(false); // Close the dialog
 
       toast({
@@ -242,22 +241,30 @@ export default function ApiKeysPage() {
     // Consider separate loading state 
     // setIsLoadingRevoke(true);
     setError(null);
+    const userId = (session as SessionData)?.user?.id; // Need userId to re-fetch
+
+    if (!userId) {
+       toast({ title: "Error", description: "User session not found.", variant: "destructive" });
+       return;
+    }
+
 
     try {
-      const response = await fetch(`/api/admin/tokens/${keyId}`, {
+      const response = await fetch(`/api/admin/tokens/${keyId}`, { // Assumes BFF route exists
         method: 'DELETE',
       });
 
       // Check for 204 No Content or other success statuses
       if (response.status === 204 || response.ok) {
-        // Remove the key from the frontend state
-        setApiKeys(apiKeys.filter((key: ApiKey) => key.id !== keyId)); // Add type hint
 
-    toast({
-      title: "API key revoked",
-      description: "The API key has been revoked and can no longer be used.",
-      duration: 3000,
+        // *** Re-fetch keys after successful deletion ***
+        await fetchApiKeys(); // Call the shared function to refresh
+
+        toast({
+          title: "API key revoked",
+          description: "The API key has been revoked.",
         });
+
       } else {
          // Attempt to parse error message if available
         let errorDetail = 'Failed to revoke API key';
@@ -352,7 +359,8 @@ export default function ApiKeysPage() {
                 </DialogContent>
               </Dialog>
 
-        {/* --- Show Newly Created Key Dialog --- */}
+        {/* --- Show Newly Created Key Dialog (REMOVED - Key is now just part of the list) --- */}
+              {/* 
               <Dialog open={newlyCreatedKey !== null} onOpenChange={(open) => !open && setNewlyCreatedKey(null)}>
                 <DialogContent className="sm:max-w-[500px]">
                   <DialogHeader>
@@ -394,7 +402,8 @@ export default function ApiKeysPage() {
                     <Button onClick={() => setNewlyCreatedKey(null)}>I've saved my API key</Button>
                   </DialogFooter>
                 </DialogContent>
-              </Dialog>
+              </Dialog> 
+              */}
             </div>
 
       {/* Display error message if any */} 
