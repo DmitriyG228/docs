@@ -21,6 +21,10 @@ interface VerificationTokenData {
   createdAt: number;
 }
 
+// Admin API endpoint
+const ADMIN_API_URL = process.env.ADMIN_API_URL || 'http://localhost:8000';
+const ADMIN_API_TOKEN = process.env.ADMIN_API_TOKEN;
+
 // Function to get SendPulse token
 async function getSendPulseToken() {
   const userId = process.env.SENDPULSE_USER_ID;
@@ -89,6 +93,43 @@ async function addContactToSendPulse(token: string, data: VerificationTokenData)
   }
 
   return response.json();
+}
+
+// Function to create user in Admin API
+async function createUserInAdminAPI(data: VerificationTokenData) {
+  console.log('Creating user in Admin API:', data.email);
+  
+  if (!ADMIN_API_TOKEN) {
+    throw new Error('Admin API token not configured');
+  }
+
+  const response = await fetch(`${ADMIN_API_URL}/admin/users`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Admin-API-Key': ADMIN_API_TOKEN,
+    },
+    body: JSON.stringify({
+      email: data.email,
+      name: data.company, // Use company name as user name
+    }),
+  });
+
+  if (response.status === 409) {
+    // User already exists - this is fine, not an error
+    console.log('User already exists in system:', data.email);
+    const userData = await response.json();
+    return userData;
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to create user in Admin API: ${errorText}`);
+  }
+
+  const userData = await response.json();
+  console.log('User created successfully:', userData);
+  return userData;
 }
 
 // Function to send welcome email
@@ -192,6 +233,20 @@ export async function GET(
     // Add contact to SendPulse
     console.log("Adding contact to SendPulse:", verificationData.email);
     await addContactToSendPulse(accessToken, verificationData);
+    
+    // Create user in Admin API
+    try {
+      console.log("Creating user in Admin API:", verificationData.email);
+      const userData = await createUserInAdminAPI(verificationData);
+      console.log("User created/found in Admin API:", userData);
+      
+      // TODO: Consider creating an initial API token for the user here
+      // This would require an additional API call to the Admin API token endpoint
+    } catch (error) {
+      console.error("Error creating user in Admin API:", error);
+      // Continue with the flow even if user creation fails
+      // We don't want to block the verification process due to admin API issues
+    }
     
     // Send welcome email
     console.log("Sending welcome email to:", verificationData.email);

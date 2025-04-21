@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { AlertCircle, Check, Copy, Eye, EyeOff, Key, Plus, Shield, Trash2 } from "lucide-react"
+import { AlertCircle, Check, Copy, Eye, EyeOff, Key, Loader2, Plus, Shield, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -34,54 +34,70 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 
-// Mock data for API keys
-const mockApiKeys = [
-  {
-    id: "key_1",
-    name: "Production API Key",
-    prefix: "sk_live_",
-    value: "51NZXRLJMYTMj6Xo2CeIYl9Hs7vD8jTXQVlOI",
-    type: "live",
-    createdAt: "2024-03-15T10:30:00Z",
-    lastUsed: "2024-03-25T15:30:00Z",
-    active: true,
-  },
-  {
-    id: "key_2",
-    name: "Development API Key",
-    prefix: "sk_test_",
-    value: "51NZXRLJMYTMj6Xo2CeIYl9Hs7vD8jTXQVlOI",
-    type: "test",
-    createdAt: "2024-02-28T14:20:00Z",
-    lastUsed: "2024-03-24T09:45:00Z",
-    active: true,
-  },
-  {
-    id: "key_3",
-    name: "Old Production API Key",
-    prefix: "sk_live_",
-    value: "51MZXRLJMYTMj6Xo2CeIYl9Hs7vD8jTXQVlOI",
-    type: "live",
-    createdAt: "2024-01-10T08:15:00Z",
-    expiredAt: "2024-03-15T10:30:00Z",
-    active: false,
-  },
-]
+// Define the structure for an API key (adjust based on actual API response)
+interface ApiKey {
+  id: number // Assuming the token ID from the database
+  token: string // The actual API token string
+  user_id: number
+  created_at: string // ISO date string
+  name?: string // Optional name (consider adding this to the admin API/DB)
+  prefix?: string // Assuming 'sk_...' prefix is standard, maybe generate on frontend or have API return it
+  active?: boolean // Assuming keys are active by default, revocation needs backend support
+  lastUsed?: string | null // Placeholder, needs backend support
+  expiredAt?: string | null // Placeholder, needs backend support
+  type?: 'live' | 'test' // Placeholder, assuming all keys are 'live' for now
+}
 
 export default function ApiKeysPage() {
-  const [apiKeys, setApiKeys] = useState(mockApiKeys)
-  const [visibleKeys, setVisibleKeys] = useState<Record<string, boolean>>({})
+  // Remove mock data, start with empty array
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]) 
+  const [visibleKeys, setVisibleKeys] = useState<Record<number, boolean>>({}) // Use token ID as key
   const [newKeyDialogOpen, setNewKeyDialogOpen] = useState(false)
   const [newKeyData, setNewKeyData] = useState({
     name: "",
-    type: "test",
-    expiration: "never",
+    // type: "test", // We'll ignore type for now as API doesn't support it
+    // expiration: "never", // We'll ignore expiration for now
+    userId: "" // Add userId field
   })
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null)
-  const [copiedKey, setCopiedKey] = useState<string | null>(null)
+  const [copiedKey, setCopiedKey] = useState<number | "new" | null>(null) // Use token ID or "new"
+  const [isLoading, setIsLoading] = useState(false) // Loading state for API calls
+  const [error, setError] = useState<string | null>(null) // Error state
+
+  // TODO: Implement fetching existing keys when backend API supports it
+  // useEffect(() => {
+  //   const fetchApiKeys = async () => {
+  //     setIsLoading(true);
+  //     setError(null);
+  //     try {
+  //       // This needs the current user's ID
+  //       // const response = await fetch(`/api/admin/tokens?userId=YOUR_USER_ID_HERE`); 
+  //       // if (!response.ok) {
+  //       //   throw new Error('Failed to fetch API keys');
+  //       // }
+  //       // const data = await response.json();
+  //       // setApiKeys(data.tokens || []); // Adjust based on actual API response structure
+  //       
+  //       // For now, just set loading to false
+  //       setApiKeys([]); // Start empty as we can't fetch
+  //     } catch (err) {
+  //       setError(err instanceof Error ? err.message : 'An unknown error occurred');
+  //       toast({
+  //         title: "Error fetching keys",
+  //         description: err instanceof Error ? err.message : 'Could not load API keys.',
+  //         variant: "destructive",
+  //       });
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   fetchApiKeys();
+  // }, []);
+
 
   // Format date to relative time (e.g., "2 hours ago")
-  const formatRelativeTime = (dateString: string) => {
+  const formatRelativeTime = (dateString: string | null | undefined) => {
+    if (!dateString) return "-";
     const date = new Date(dateString)
     const now = new Date()
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
@@ -99,7 +115,8 @@ export default function ApiKeysPage() {
   }
 
   // Format date to full date (e.g., "March 15, 2024")
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -108,15 +125,16 @@ export default function ApiKeysPage() {
   }
 
   // Toggle key visibility
-  const toggleKeyVisibility = (keyId: string) => {
-    setVisibleKeys((prev) => ({
+  const toggleKeyVisibility = (keyId: number) => {
+    setVisibleKeys((prev: Record<number, boolean>) => ({
       ...prev,
       [keyId]: !prev[keyId],
     }))
   }
 
   // Copy key to clipboard
-  const copyToClipboard = (keyId: string, fullKey: string) => {
+  const copyToClipboard = (keyId: number | "new", fullKey: string) => {
+    if (!fullKey) return;
     navigator.clipboard.writeText(fullKey)
     setCopiedKey(keyId)
     setTimeout(() => setCopiedKey(null), 2000)
@@ -128,49 +146,112 @@ export default function ApiKeysPage() {
     })
   }
 
-  // Create new API key
-  const createNewApiKey = () => {
-    // Generate a random key value (in a real app, this would come from the server)
-    const randomKey = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-
-    const prefix = newKeyData.type === "live" ? "sk_live_" : "sk_test_"
-    const fullKey = `${prefix}${randomKey}`
-
-    const newKey = {
-      id: `key_${apiKeys.length + 1}`,
-      name: newKeyData.name || `${newKeyData.type === "live" ? "Production" : "Development"} API Key`,
-      prefix,
-      value: randomKey,
-      type: newKeyData.type,
-      createdAt: new Date().toISOString(),
-      lastUsed: null,
-      active: true,
+  // --- Modified: Create new API key ---
+  const createNewApiKey = async () => {
+    if (!newKeyData.userId) {
+      toast({
+        title: "User ID required",
+        description: "Please enter the User ID to create a key for.",
+        variant: "destructive",
+        duration: 3000,
+      });
+      return;
     }
 
-    setApiKeys([newKey, ...apiKeys])
-    setNewlyCreatedKey(fullKey)
-    setNewKeyData({ name: "", type: "test", expiration: "never" })
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/admin/tokens', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: parseInt(newKeyData.userId, 10) }), // Send userId
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.detail || result.error || 'Failed to create API key');
+      }
+
+      // Assuming the API returns the created token object matching our ApiKey interface
+      const newKey: ApiKey = {
+        ...result,
+        // Add frontend-specific fields if needed (like prefix)
+        // name: newKeyData.name || `API Key ${result.id}`, // Use name from input or generate one
+        prefix: "sk_", // Assume a standard prefix for display
+        active: true, // Assume active on creation
+        type: 'live' // Assume live type for now
+      };
+
+      setApiKeys([newKey, ...apiKeys]);
+      setNewlyCreatedKey(newKey.token); // Show the full token value after creation
+      setNewKeyData({ name: "", userId: "" }); // Reset form
+      setNewKeyDialogOpen(false); // Close the dialog
+
+      toast({
+        title: "API key created",
+        description: "Your new API key has been successfully created.",
+      });
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      toast({
+        title: "Error creating key",
+        description: err instanceof Error ? err.message : 'Could not create API key.',
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
-  // Revoke API key
-  const revokeApiKey = (keyId: string) => {
-    setApiKeys(
-      apiKeys.map((key) =>
-        key.id === keyId
-          ? {
-              ...key,
-              active: false,
-              expiredAt: new Date().toISOString(),
-            }
-          : key,
-      ),
-    )
+  // --- Modified: Revoke API key ---
+  const revokeApiKey = async (keyId: number) => {
+    // Note: This requires the DELETE /api/admin/tokens/[tokenId] endpoint to be fully functional,
+    // which in turn requires DELETE /admin/tokens/{token_id} in the main admin API.
 
-    toast({
-      title: "API key revoked",
-      description: "The API key has been revoked and can no longer be used.",
-      duration: 3000,
-    })
+    setIsLoading(true); // Consider separate loading state per key if needed
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/admin/tokens/${keyId}`, {
+        method: 'DELETE',
+      });
+
+      // Check for 204 No Content or other success statuses
+      if (response.status === 204 || response.ok) {
+        // Remove the key from the frontend state
+        setApiKeys(apiKeys.filter((key) => key.id !== keyId));
+
+        toast({
+          title: "API key revoked",
+          description: "The API key has been revoked and can no longer be used.",
+          duration: 3000,
+        });
+      } else {
+         // Attempt to parse error message if available
+        let errorDetail = 'Failed to revoke API key';
+        try {
+          const result = await response.json();
+          errorDetail = result.detail || result.error || errorDetail;
+        } catch (e) {
+           // Ignore if response is not JSON
+        }
+        throw new Error(errorDetail);
+      }
+    } catch (err) {
+       setError(err instanceof Error ? err.message : 'An unknown error occurred during revocation');
+       toast({
+         title: "Error revoking key",
+         description: err instanceof Error ? err.message : 'Could not revoke API key.',
+         variant: "destructive",
+       });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -179,9 +260,9 @@ export default function ApiKeysPage() {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-xl">
             <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-              D
+              V
             </div>
-            DevPortal
+            Vexa DevPortal
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <Link href="/" className="text-sm font-medium transition-colors hover:text-primary">
@@ -190,13 +271,13 @@ export default function ApiKeysPage() {
             <Link href="/docs" className="text-sm font-medium transition-colors hover:text-primary">
               Documentation
             </Link>
-            <Link href="/dashboard" className="text-sm font-medium transition-colors hover:text-primary">
+            <Link href="/dashboard" className="text-sm font-medium transition-colors hover:text-primary text-primary">
               Dashboard
             </Link>
           </nav>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm">
-              John Doe
+              Account
             </Button>
           </div>
         </div>
@@ -214,28 +295,10 @@ export default function ApiKeysPage() {
               </Link>
               <Link
                 href="/dashboard/api-keys"
-                className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm font-medium transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-3 py-2 text-sm font-medium transition-colors"
               >
                 <Key className="h-4 w-4" />
                 API Keys
-              </Link>
-              <Link
-                href="#"
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted"
-              >
-                Usage
-              </Link>
-              <Link
-                href="#"
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted"
-              >
-                Billing
-              </Link>
-              <Link
-                href="#"
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted"
-              >
-                Settings
               </Link>
             </nav>
           </div>
@@ -258,75 +321,39 @@ export default function ApiKeysPage() {
                   <DialogHeader>
                     <DialogTitle>Create new API key</DialogTitle>
                     <DialogDescription>
-                      Create a new API key for your application. You will only be able to view the key once after
-                      creation.
+                      Create a new API key for a specific user. You will only be able to view the key once.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="key-name">Key name</Label>
+                      <Label htmlFor="user-id">User ID</Label>
                       <Input
-                        id="key-name"
-                        placeholder="e.g., Production Backend"
-                        value={newKeyData.name}
-                        onChange={(e) => setNewKeyData({ ...newKeyData, name: e.target.value })}
+                        id="user-id"
+                        type="number"
+                        placeholder="Enter the User ID"
+                        value={newKeyData.userId}
+                        onChange={(e) => setNewKeyData({ ...newKeyData, userId: e.target.value })}
                       />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="key-type">Key type</Label>
-                      <Select
-                        value={newKeyData.type}
-                        onValueChange={(value) => setNewKeyData({ ...newKeyData, type: value })}
-                      >
-                        <SelectTrigger id="key-type">
-                          <SelectValue placeholder="Select key type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="test">Test key</SelectItem>
-                          <SelectItem value="live">Live key</SelectItem>
-                        </SelectContent>
-                      </Select>
                       <p className="text-xs text-muted-foreground">
-                        {newKeyData.type === "live"
-                          ? "Use live keys for production environments. These keys can perform real actions."
-                          : "Use test keys for development and testing. These keys only work in test mode."}
+                        Enter the ID of the user you want to generate this key for.
                       </p>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="expiration">Expiration</Label>
-                      <Select
-                        value={newKeyData.expiration}
-                        onValueChange={(value) => setNewKeyData({ ...newKeyData, expiration: value })}
-                      >
-                        <SelectTrigger id="expiration">
-                          <SelectValue placeholder="Select expiration" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="never">Never</SelectItem>
-                          <SelectItem value="30days">30 days</SelectItem>
-                          <SelectItem value="90days">90 days</SelectItem>
-                          <SelectItem value="1year">1 year</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setNewKeyDialogOpen(false)}>
+                    <Button variant="outline" onClick={() => setNewKeyDialogOpen(false)} disabled={isLoading}>
                       Cancel
                     </Button>
                     <Button
-                      onClick={() => {
-                        createNewApiKey()
-                        setNewKeyDialogOpen(false)
-                      }}
+                      onClick={createNewApiKey}
+                      disabled={isLoading || !newKeyData.userId}
                     >
+                      {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                       Create API key
                     </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
 
-              {/* Dialog to show newly created key */}
               <Dialog open={newlyCreatedKey !== null} onOpenChange={(open) => !open && setNewlyCreatedKey(null)}>
                 <DialogContent className="sm:max-w-[500px]">
                   <DialogHeader>
@@ -359,7 +386,7 @@ export default function ApiKeysPage() {
                         <AlertCircle className="h-5 w-5 mt-0.5" />
                         <div>
                           <strong>Important:</strong> For security reasons, we don't store your API key in a readable
-                          format. If you lose this key, you'll need to create a new one.
+                          format after creation. If you lose this key, you'll need to create a new one.
                         </div>
                       </div>
                     </div>
@@ -371,54 +398,73 @@ export default function ApiKeysPage() {
               </Dialog>
             </div>
 
+            {/* Display error message if any */}
+            {error && (
+               <div className="p-4 bg-destructive/10 text-destructive rounded-md text-sm">
+                 <strong>Error:</strong> {error}
+               </div>
+             )}
+            
+            {/* Display loading indicator */}
+             {isLoading && !newKeyDialogOpen && ( // Don't show global loading when dialog is open and loading
+               <div className="flex justify-center items-center py-10">
+                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                 <span className="ml-2 text-muted-foreground">Loading keys...</span>
+               </div>
+             )}
+
+            {/* --- Tabs for Active/Revoked keys --- */}
+            {/* Note: Revoked keys tab won't work until backend supports fetching/status */}
             <Tabs defaultValue="active" className="w-full">
               <TabsList className="mb-4">
                 <TabsTrigger value="active">
                   Active Keys
                   <Badge variant="secondary" className="ml-2">
-                    {apiKeys.filter((key) => key.active).length}
+                    {/* Calculate count based on actual state */}
+                    {apiKeys.filter((key: ApiKey) => key.active !== false).length}
                   </Badge>
                 </TabsTrigger>
-                <TabsTrigger value="revoked">
+                <TabsTrigger value="revoked" disabled> {/* Disable until backend ready */}
                   Revoked Keys
                   <Badge variant="secondary" className="ml-2">
-                    {apiKeys.filter((key) => !key.active).length}
+                     {apiKeys.filter((key: ApiKey) => key.active === false).length}
                   </Badge>
                 </TabsTrigger>
               </TabsList>
 
+              {/* --- Active Keys Tab --- */}
               <TabsContent value="active" className="space-y-4">
-                {apiKeys.filter((key) => key.active).length === 0 ? (
+                 {/* Show message if no keys and not loading */}
+                 {!isLoading && apiKeys.filter((key: ApiKey) => key.active !== false).length === 0 ? (
                   <Card>
                     <CardContent className="flex flex-col items-center justify-center py-10 text-center">
                       <Key className="h-12 w-12 text-muted-foreground mb-4" />
                       <h3 className="text-lg font-medium mb-2">No active API keys</h3>
                       <p className="text-muted-foreground mb-4">
-                        You don't have any active API keys. Create one to get started.
+                         Create a new API key to get started.
                       </p>
                       <Button onClick={() => setNewKeyDialogOpen(true)}>Create API key</Button>
                     </CardContent>
                   </Card>
                 ) : (
+                  // Map over actual API keys
                   apiKeys
-                    .filter((key) => key.active)
-                    .map((key) => (
+                    .filter((key: ApiKey) => key.active !== false) // Filter for active keys
+                    .map((key: ApiKey) => ( // Map over active keys
                       <Card key={key.id}>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                           <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <CardTitle>{key.name}</CardTitle>
-                              <Badge variant={key.type === "live" ? "default" : "outline"}>
-                                {key.type === "live" ? "Live" : "Test"}
-                              </Badge>
-                            </div>
+                            <CardTitle>
+                              {/* Use generated name or default */}
+                              {key.name || `API Key ${key.id}`}
+                            </CardTitle>
                             <CardDescription>
-                              {key.type === "live"
-                                ? "Use this key for your production environment."
-                                : "Use this key for testing and development."}
+                              {/* Display prefix and last 4 chars */}
+                              {key.prefix || "sk_"}...{key.token.slice(-4)}
                             </CardDescription>
                           </div>
                           <div className="flex items-center gap-2">
+                            {/* Revoke Key Dialog */}
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button variant="outline" size="icon" className="h-8 w-8 text-destructive">
@@ -438,7 +484,7 @@ export default function ApiKeysPage() {
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                   <AlertDialogAction
                                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                    onClick={() => revokeApiKey(key.id)}
+                                    onClick={() => revokeApiKey(key.id)} // Call revoke function
                                   >
                                     Revoke
                                   </AlertDialogAction>
@@ -452,7 +498,7 @@ export default function ApiKeysPage() {
                             <div className="relative flex-1">
                               <Input
                                 type={visibleKeys[key.id] ? "text" : "password"}
-                                value={`${key.prefix}${key.value}`}
+                                value={key.token} // Display the full token here
                                 readOnly
                                 className="pr-10 font-mono text-sm"
                               />
@@ -470,7 +516,7 @@ export default function ApiKeysPage() {
                               variant="outline"
                               size="icon"
                               className="h-10 w-10"
-                              onClick={() => copyToClipboard(key.id, `${key.prefix}${key.value}`)}
+                              onClick={() => copyToClipboard(key.id, key.token)} // Copy full token
                             >
                               {copiedKey === key.id ? (
                                 <Check className="h-4 w-4 text-green-500" />
@@ -482,66 +528,27 @@ export default function ApiKeysPage() {
                           </div>
                         </CardContent>
                         <CardFooter className="flex justify-between">
-                          <div className="text-xs text-muted-foreground">Created: {formatDate(key.createdAt)}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {key.lastUsed ? `Last used: ${formatRelativeTime(key.lastUsed)}` : "Never used"}
-                          </div>
+                           <div className="text-xs text-muted-foreground">Created: {formatDate(key.created_at)}</div>
+                          {/* Last used requires backend implementation */}
+                           <div className="text-xs text-muted-foreground">Last used: {formatRelativeTime(key.lastUsed)}</div>
                         </CardFooter>
                       </Card>
                     ))
                 )}
               </TabsContent>
 
+              {/* --- Revoked Keys Tab (Placeholder) --- */}
               <TabsContent value="revoked" className="space-y-4">
-                {apiKeys.filter((key) => !key.active).length === 0 ? (
-                  <Card>
-                    <CardContent className="flex flex-col items-center justify-center py-10 text-center">
-                      <Key className="h-12 w-12 text-muted-foreground mb-4" />
-                      <h3 className="text-lg font-medium mb-2">No revoked API keys</h3>
-                      <p className="text-muted-foreground">You don't have any revoked API keys.</p>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  apiKeys
-                    .filter((key) => !key.active)
-                    .map((key) => (
-                      <Card key={key.id} className="opacity-80">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <CardTitle>{key.name}</CardTitle>
-                              <Badge variant="outline" className="text-muted-foreground">
-                                Revoked
-                              </Badge>
-                            </div>
-                            <CardDescription>This key has been revoked and is no longer active.</CardDescription>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="pb-2">
-                          <div className="flex items-center gap-2">
-                            <div className="relative flex-1">
-                              <Input
-                                type="text"
-                                value={`${key.prefix}...${key.value.substring(key.value.length - 4)}`}
-                                readOnly
-                                disabled
-                                className="font-mono text-sm"
-                              />
-                            </div>
-                          </div>
-                        </CardContent>
-                        <CardFooter className="flex justify-between">
-                          <div className="text-xs text-muted-foreground">Created: {formatDate(key.createdAt)}</div>
-                          <div className="text-xs text-muted-foreground">
-                            Revoked: {formatDate(key.expiredAt || "")}
-                          </div>
-                        </CardFooter>
-                      </Card>
-                    ))
-                )}
+                <Card>
+                   <CardContent className="py-10 text-center">
+                      <p className="text-muted-foreground">Revoked key display requires backend implementation.</p>
+                   </CardContent>
+                 </Card>
+                {/* Map over revoked keys when data is available */}
               </TabsContent>
             </Tabs>
 
+            {/* Security Best Practices Card remains the same */}
             <Card>
               <CardHeader>
                 <CardTitle>API Key Security</CardTitle>
