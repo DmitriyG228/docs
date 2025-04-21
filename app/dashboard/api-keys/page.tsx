@@ -415,6 +415,7 @@ export default function ApiKeysPage() {
 
       {/* --- Tabs for Active/Revoked keys --- */}
             <Tabs defaultValue="active" className="w-full">
+              {/* REMOVED TabsList
               <TabsList className="mb-4">
                 <TabsTrigger value="active">
                   Active Keys
@@ -422,13 +423,14 @@ export default function ApiKeysPage() {
               {apiKeys.filter((key: ApiKey) => key.active !== false).length}
                   </Badge>
                 </TabsTrigger>
-          <TabsTrigger value="revoked" disabled> {/* Still disabled */}
+          <TabsTrigger value="revoked" disabled> 
                   Revoked Keys
                   <Badge variant="secondary" className="ml-2">
               {apiKeys.filter((key: ApiKey) => key.active === false).length}
                   </Badge>
                 </TabsTrigger>
               </TabsList>
+              */}
 
         {/* --- Active Keys Tab --- */}
               <TabsContent value="active" className="space-y-4">
