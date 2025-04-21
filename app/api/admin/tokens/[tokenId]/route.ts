@@ -26,7 +26,7 @@ export async function DELETE(
       );
     }
 
-    const { tokenId } = params;
+    const tokenId = params.tokenId;
 
     if (!tokenId) {
       return NextResponse.json(
@@ -35,8 +35,8 @@ export async function DELETE(
       );
     }
 
-    // Note: This requires an endpoint for deleting tokens in the admin API
-    // which may need to be implemented first
+    console.log(`Attempting to delete token ID: ${tokenId}`);
+
     const response = await fetch(`${ADMIN_API_URL}/admin/tokens/${tokenId}`, {
       method: 'DELETE',
       headers: {
@@ -44,38 +44,42 @@ export async function DELETE(
       },
     });
 
+    console.log(`Admin API DELETE /admin/tokens/${tokenId} status: ${response.status}`);
+
     // For a DELETE operation, we might not get a JSON response
     if (response.status === 204) {
       // No content, standard for successful DELETE
       return new NextResponse(null, { status: 204 });
     }
 
-    // Try to parse response as JSON
+    // Try to parse response as JSON if not 204
+    let responseData = {};
     try {
-      const responseData = await response.json();
-      
-      // Return appropriate response based on status code
-      if (!response.ok) {
-        return NextResponse.json(
-          responseData,
-          { status: response.status }
-        );
+      // Check if response has content before parsing
+      if (response.headers.get('content-length') !== '0') {
+        responseData = await response.json();
       }
-
-      return NextResponse.json(responseData);
     } catch (e) {
-      // If we can't parse JSON, just return the status
-      if (!response.ok) {
-        return NextResponse.json(
-          { error: `Failed to revoke token. Status: ${response.status}` },
-          { status: response.status }
-        );
-      }
-      
-      return new NextResponse(null, { status: response.status });
+      console.error("Error parsing JSON response on DELETE:", e);
+      // If parsing fails but status was ok somehow, treat as success?
+      // Or maybe return the non-JSON error from backend?
+      // For now, we rely on the status code check below.
     }
+      
+    // Return appropriate response based on status code
+    if (!response.ok) {
+      console.error(`Admin API Error: ${response.status}`, responseData);
+      return NextResponse.json(
+        responseData, // Forward the error details from admin-api if available
+        { status: response.status }
+      );
+    }
+
+    // If response.ok but not 204 (unlikely for DELETE, but handle it)
+    return NextResponse.json(responseData, { status: response.status });
+
   } catch (error) {
-    console.error('Error revoking token via Admin API:', error);
+    console.error('Error in DELETE /api/admin/tokens/[tokenId]:', error);
     
     return NextResponse.json(
       { error: 'Failed to revoke API token. Please try again later.' },

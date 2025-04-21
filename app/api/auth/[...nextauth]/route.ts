@@ -16,8 +16,6 @@ async function findOrCreateUser(email: string, name?: string | null, image?: str
   const adminApiUrl = process.env.ADMIN_API_URL || 'http://localhost:8000';
   const adminApiToken = process.env.ADMIN_API_TOKEN;
 
-  console.log(`[NextAuth] findOrCreateUser: Read ADMIN_API_TOKEN value: '${adminApiToken}'`);
-
   if (!adminApiToken) {
     console.error('[NextAuth] ADMIN_API_TOKEN is not configured. Cannot sync user.');
     return null;

@@ -9,6 +9,8 @@ import { Github, Linkedin } from 'lucide-react'
 import { CookieConsent } from '@/components/cookie-consent'
 import AuthProvider from "@/components/AuthProvider";
 import AuthButtons from "@/components/AuthButtons";
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSession } from 'next-auth/next';
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -35,11 +37,13 @@ export const metadata: Metadata = {
 // Google Analytics Measurement ID from environment variable
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -108,9 +112,11 @@ export default function RootLayout({
                     <Link href="/blog" className="text-sm font-medium transition-colors hover:text-primary">
                       Blog
                     </Link>
-                    <Link href="/dashboard" className="text-sm font-medium transition-colors hover:text-primary">
-                      Dashboard
-                    </Link>
+                    {session && (
+                      <Link href="/dashboard/api-keys" className="text-sm font-medium transition-colors hover:text-primary">
+                        API Keys
+                      </Link>
+                    )}
                   </nav>
                   <div className="flex items-center gap-2">
                     <Link 

@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { AlertCircle, Check, Copy, Eye, EyeOff, Key, Loader2, Plus, Shield, Trash2 } from "lucide-react"
+import { useSession } from "next-auth/react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
@@ -48,52 +48,75 @@ interface ApiKey {
   type?: 'live' | 'test' // Placeholder, assuming all keys are 'live' for now
 }
 
+// Define the structure for the user object in the session
+interface SessionUser {
+  id?: string | number; // Ensure ID is expected (next-auth adds it as string from JWT)
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
+// Define the structure for the session data
+interface SessionData {
+  user?: SessionUser;
+  expires: string;
+}
+
 export default function ApiKeysPage() {
-  // Remove mock data, start with empty array
+  const { data: session, status: sessionStatus } = useSession(); // Get session data
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]) 
   const [visibleKeys, setVisibleKeys] = useState<Record<number, boolean>>({}) // Use token ID as key
   const [newKeyDialogOpen, setNewKeyDialogOpen] = useState(false)
-  const [newKeyData, setNewKeyData] = useState({
-    name: "",
-    // type: "test", // We'll ignore type for now as API doesn't support it
-    // expiration: "never", // We'll ignore expiration for now
-    userId: "" // Add userId field
-  })
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null)
   const [copiedKey, setCopiedKey] = useState<number | "new" | null>(null) // Use token ID or "new"
-  const [isLoading, setIsLoading] = useState(false) // Loading state for API calls
+  const [isLoading, setIsLoading] = useState(true) // Start loading true to fetch keys
   const [error, setError] = useState<string | null>(null) // Error state
 
-  // TODO: Implement fetching existing keys when backend API supports it
-  // useEffect(() => {
-  //   const fetchApiKeys = async () => {
-  //     setIsLoading(true);
-  //     setError(null);
-  //     try {
-  //       // This needs the current user's ID
-  //       // const response = await fetch(`/api/admin/tokens?userId=YOUR_USER_ID_HERE`); 
-  //       // if (!response.ok) {
-  //       //   throw new Error('Failed to fetch API keys');
-  //       // }
-  //       // const data = await response.json();
-  //       // setApiKeys(data.tokens || []); // Adjust based on actual API response structure
-  //       
-  //       // For now, just set loading to false
-  //       setApiKeys([]); // Start empty as we can't fetch
-  //     } catch (err) {
-  //       setError(err instanceof Error ? err.message : 'An unknown error occurred');
-  //       toast({
-  //         title: "Error fetching keys",
-  //         description: err instanceof Error ? err.message : 'Could not load API keys.',
-  //         variant: "destructive",
-  //       });
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-  //   fetchApiKeys();
-  // }, []);
-
+  // Fetch API keys when the component mounts and session is loaded
+  useEffect(() => {
+    // Only fetch if session is loaded and authenticated
+    if (sessionStatus === "authenticated" && (session as SessionData)?.user?.id) {
+      const fetchApiKeys = async () => {
+        // Ensure loading is true when starting fetch
+        if (!isLoading) setIsLoading(true);
+        setError(null);
+        try {
+          const userId = (session as SessionData).user?.id; // Get user ID from session
+          // Note: This requires the GET /api/admin/tokens route to correctly handle
+          // fetching tokens for a specific user, which depends on the main admin-api.
+          // It should call GET /admin/users/{userId} which needs to return user details including tokens.
+          const response = await fetch(`/api/admin/tokens?userId=${userId}`); 
+          
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({})); // Try to parse error
+            throw new Error(errorData.detail || errorData.error || 'Failed to fetch API keys');
+          }
+          
+          const data = await response.json();
+          // Assuming the GET /admin/users/{id} endpoint returns user details including a 'tokens' array.
+          // Need to adjust if the API returns keys differently (e.g., a dedicated /admin/users/{id}/tokens endpoint)
+          setApiKeys(data.tokens || []); 
+        } catch (err) {
+          console.error("Error fetching keys:", err); // Log error for debugging
+          setError(err instanceof Error ? err.message : 'An unknown error occurred while fetching keys.');
+          toast({
+            title: "Error loading keys",
+            description: err instanceof Error ? err.message : 'Could not load your API keys.',
+            variant: "destructive",
+          });
+          setApiKeys([]); // Clear keys on error
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchApiKeys();
+    } else if (sessionStatus === "unauthenticated") {
+      // Handle case where user is not logged in (middleware will handle redirects)
+      setIsLoading(false);
+      setApiKeys([]);
+    } 
+    // If sessionStatus is "loading", isLoading remains true until fetch finishes or determines unauthenticated
+  }, [sessionStatus, session]); // Re-run effect when session status or session data changes
 
   // Format date to relative time (e.g., "2 hours ago")
   const formatRelativeTime = (dateString: string | null | undefined) => {
@@ -148,17 +171,21 @@ export default function ApiKeysPage() {
 
   // --- Modified: Create new API key ---
   const createNewApiKey = async () => {
-    if (!newKeyData.userId) {
+    // Check if user is logged in
+    if (sessionStatus !== "authenticated" || !(session as SessionData)?.user?.id) {
       toast({
-        title: "User ID required",
-        description: "Please enter the User ID to create a key for.",
+        title: "Authentication Required",
+        description: "You must be logged in to create an API key.",
         variant: "destructive",
         duration: 3000,
       });
       return;
     }
 
-    setIsLoading(true);
+    const userId = (session as SessionData).user?.id; // Get user ID from session
+
+    // Consider separate loading state for creation vs fetching
+    // setIsLoadingCreate(true); 
     setError(null);
 
     try {
@@ -167,7 +194,8 @@ export default function ApiKeysPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId: parseInt(newKeyData.userId, 10) }), // Send userId
+         // Send the logged-in user's ID
+        body: JSON.stringify({ userId: Number(userId) }), // Convert string ID from session if necessary
       });
 
       const result = await response.json();
@@ -179,8 +207,6 @@ export default function ApiKeysPage() {
       // Assuming the API returns the created token object matching our ApiKey interface
       const newKey: ApiKey = {
         ...result,
-        // Add frontend-specific fields if needed (like prefix)
-        // name: newKeyData.name || `API Key ${result.id}`, // Use name from input or generate one
         prefix: "sk_", // Assume a standard prefix for display
         active: true, // Assume active on creation
         type: 'live' // Assume live type for now
@@ -188,7 +214,7 @@ export default function ApiKeysPage() {
 
       setApiKeys([newKey, ...apiKeys]);
       setNewlyCreatedKey(newKey.token); // Show the full token value after creation
-      setNewKeyData({ name: "", userId: "" }); // Reset form
+      // Reset form (no longer needed as userId is from session)
       setNewKeyDialogOpen(false); // Close the dialog
 
       toast({
@@ -204,7 +230,7 @@ export default function ApiKeysPage() {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      // setIsLoadingCreate(false);
     }
   }
 
@@ -213,7 +239,8 @@ export default function ApiKeysPage() {
     // Note: This requires the DELETE /api/admin/tokens/[tokenId] endpoint to be fully functional,
     // which in turn requires DELETE /admin/tokens/{token_id} in the main admin API.
 
-    setIsLoading(true); // Consider separate loading state per key if needed
+    // Consider separate loading state 
+    // setIsLoadingRevoke(true);
     setError(null);
 
     try {
@@ -224,12 +251,12 @@ export default function ApiKeysPage() {
       // Check for 204 No Content or other success statuses
       if (response.status === 204 || response.ok) {
         // Remove the key from the frontend state
-        setApiKeys(apiKeys.filter((key) => key.id !== keyId));
+        setApiKeys(apiKeys.filter((key: ApiKey) => key.id !== keyId)); // Add type hint
 
-        toast({
-          title: "API key revoked",
-          description: "The API key has been revoked and can no longer be used.",
-          duration: 3000,
+    toast({
+      title: "API key revoked",
+      description: "The API key has been revoked and can no longer be used.",
+      duration: 3000,
         });
       } else {
          // Attempt to parse error message if available
@@ -250,110 +277,82 @@ export default function ApiKeysPage() {
          variant: "destructive",
        });
     } finally {
-      setIsLoading(false);
+      // setIsLoadingRevoke(false);
     }
   }
 
+  // --- Render Logic ---
+
+  // Handle loading state for session and initial key fetch
+  if (sessionStatus === "loading" || isLoading) {
+     return (
+       // This component only renders the main content area, assuming layout provides structure
+       <div className="flex justify-center items-center py-20">
+         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+         <span className="ml-2 text-muted-foreground">Loading API Keys...</span>
+       </div>
+     );
+   }
+
+  // Handle unauthenticated state (middleware should prevent this, but good fallback)
+   if (sessionStatus === "unauthenticated") {
+     return (
+       <div className="text-center py-20">
+         <p className="mb-4 text-muted-foreground">Please log in to manage your API keys.</p>
+         {/* You might want to add a login button here if middleware fails */}
+         {/* <Button onClick={() => signIn('google')}>Login with Google</Button> */}
+       </div>
+     );
+   }
+
+  // Main component render (when authenticated and loaded)
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2 font-bold text-xl">
-            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-              V
-            </div>
-            Vexa DevPortal
-          </div>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-sm font-medium transition-colors hover:text-primary">
-              Home
-            </Link>
-            <Link href="/docs" className="text-sm font-medium transition-colors hover:text-primary">
-              Documentation
-            </Link>
-            <Link href="/dashboard" className="text-sm font-medium transition-colors hover:text-primary text-primary">
-              Dashboard
-            </Link>
-          </nav>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm">
-              Account
-            </Button>
-          </div>
-        </div>
-      </header>
-      <div className="flex flex-1">
-        <aside className="hidden lg:flex w-64 flex-col border-r">
-          <div className="p-6">
-            <h2 className="text-lg font-semibold mb-4">Dashboard</h2>
-            <nav className="grid gap-2">
-              <Link
-                href="/dashboard"
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted"
-              >
-                Overview
-              </Link>
-              <Link
-                href="/dashboard/api-keys"
-                className="flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-3 py-2 text-sm font-medium transition-colors"
-              >
-                <Key className="h-4 w-4" />
-                API Keys
-              </Link>
-            </nav>
-          </div>
-        </aside>
-        <main className="flex-1 p-6 lg:p-10">
+    // This component now assumes it's rendered within a layout that provides
+    // the overall page structure (header, sidebar, etc.)
+    // It focuses only on the API key management section.
           <div className="mx-auto max-w-4xl space-y-8">
+      {/* Header Section */} 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h1 className="text-3xl font-bold tracking-tight">API Keys</h1>
-                <p className="mt-2 text-muted-foreground">Create and manage API keys to authenticate your requests.</p>
+          <p className="mt-2 text-muted-foreground">Create and manage your API keys.</p>
               </div>
+        {/* --- Create Key Dialog Trigger --- */}
               <Dialog open={newKeyDialogOpen} onOpenChange={setNewKeyDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button className="gap-1.5">
+            <Button className="gap-1.5" disabled={sessionStatus !== 'authenticated'}>
                     <Plus className="h-4 w-4" />
                     Create new API key
                   </Button>
                 </DialogTrigger>
+          {/* --- Create Key Dialog Content (No longer needs userId input) --- */}
                 <DialogContent className="sm:max-w-[425px]">
                   <DialogHeader>
                     <DialogTitle>Create new API key</DialogTitle>
                     <DialogDescription>
-                      Create a new API key for a specific user. You will only be able to view the key once.
+                Click create to generate a new API key. You will only be able to view the key once.
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="user-id">User ID</Label>
-                      <Input
-                        id="user-id"
-                        type="number"
-                        placeholder="Enter the User ID"
-                        value={newKeyData.userId}
-                        onChange={(e) => setNewKeyData({ ...newKeyData, userId: e.target.value })}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Enter the ID of the user you want to generate this key for.
-                      </p>
-                    </div>
-                  </div>
+             {/* Removed user id input */}
+            {/* Optional: Add name input? */}
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setNewKeyDialogOpen(false)} disabled={isLoading}>
+              <Button variant="outline" onClick={() => setNewKeyDialogOpen(false)} >
                       Cancel
                     </Button>
                     <Button
-                      onClick={createNewApiKey}
-                      disabled={isLoading || !newKeyData.userId}
-                    >
-                      {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                onClick={createNewApiKey} 
+                // Consider adding loading state specific to create button
+                // disabled={isLoadingCreate || sessionStatus !== 'authenticated'}
+                 disabled={sessionStatus !== 'authenticated'} // Disable if not logged in
+              >
+                {/* {isLoadingCreate ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} */}
                       Create API key
                     </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
 
+        {/* --- Show Newly Created Key Dialog --- */}
               <Dialog open={newlyCreatedKey !== null} onOpenChange={(open) => !open && setNewlyCreatedKey(null)}>
                 <DialogContent className="sm:max-w-[500px]">
                   <DialogHeader>
@@ -398,76 +397,63 @@ export default function ApiKeysPage() {
               </Dialog>
             </div>
 
-            {/* Display error message if any */}
-            {error && (
-               <div className="p-4 bg-destructive/10 text-destructive rounded-md text-sm">
-                 <strong>Error:</strong> {error}
-               </div>
-             )}
-            
-            {/* Display loading indicator */}
-             {isLoading && !newKeyDialogOpen && ( // Don't show global loading when dialog is open and loading
-               <div className="flex justify-center items-center py-10">
-                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                 <span className="ml-2 text-muted-foreground">Loading keys...</span>
-               </div>
-             )}
+      {/* Display error message if any */} 
+      {error && (
+        <div className="p-4 bg-destructive/10 text-destructive rounded-md text-sm">
+          <strong>Error:</strong> {error}
+        </div>
+      )}
 
-            {/* --- Tabs for Active/Revoked keys --- */}
-            {/* Note: Revoked keys tab won't work until backend supports fetching/status */}
+      {/* --- Tabs for Active/Revoked keys --- */}
             <Tabs defaultValue="active" className="w-full">
               <TabsList className="mb-4">
                 <TabsTrigger value="active">
                   Active Keys
                   <Badge variant="secondary" className="ml-2">
-                    {/* Calculate count based on actual state */}
-                    {apiKeys.filter((key: ApiKey) => key.active !== false).length}
+              {apiKeys.filter((key: ApiKey) => key.active !== false).length}
                   </Badge>
                 </TabsTrigger>
-                <TabsTrigger value="revoked" disabled> {/* Disable until backend ready */}
+          <TabsTrigger value="revoked" disabled> {/* Still disabled */}
                   Revoked Keys
                   <Badge variant="secondary" className="ml-2">
-                     {apiKeys.filter((key: ApiKey) => key.active === false).length}
+              {apiKeys.filter((key: ApiKey) => key.active === false).length}
                   </Badge>
                 </TabsTrigger>
               </TabsList>
 
-              {/* --- Active Keys Tab --- */}
+        {/* --- Active Keys Tab --- */}
               <TabsContent value="active" className="space-y-4">
-                 {/* Show message if no keys and not loading */}
-                 {!isLoading && apiKeys.filter((key: ApiKey) => key.active !== false).length === 0 ? (
+          {/* Show message if no keys and not loading/error */}
+          {!isLoading && !error && apiKeys.filter((key: ApiKey) => key.active !== false).length === 0 ? (
                   <Card>
                     <CardContent className="flex flex-col items-center justify-center py-10 text-center">
                       <Key className="h-12 w-12 text-muted-foreground mb-4" />
                       <h3 className="text-lg font-medium mb-2">No active API keys</h3>
                       <p className="text-muted-foreground mb-4">
-                         Create a new API key to get started.
+                  Create your first API key to get started.
                       </p>
-                      <Button onClick={() => setNewKeyDialogOpen(true)}>Create API key</Button>
+                <Button onClick={() => setNewKeyDialogOpen(true)} disabled={sessionStatus !== 'authenticated'}>Create API key</Button>
                     </CardContent>
                   </Card>
                 ) : (
-                  // Map over actual API keys
-                  apiKeys
-                    .filter((key: ApiKey) => key.active !== false) // Filter for active keys
-                    .map((key: ApiKey) => ( // Map over active keys
+            // Map over keys only if not loading and no error 
+            !isLoading && !error && apiKeys
+              .filter((key: ApiKey) => key.active !== false)
+              .map((key: ApiKey) => (
                       <Card key={key.id}>
-                        <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+                   <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                           <div className="space-y-1">
                             <CardTitle>
-                              {/* Use generated name or default */}
                               {key.name || `API Key ${key.id}`}
                             </CardTitle>
                             <CardDescription>
-                              {/* Display prefix and last 4 chars */}
                               {key.prefix || "sk_"}...{key.token.slice(-4)}
                             </CardDescription>
                           </div>
                           <div className="flex items-center gap-2">
-                            {/* Revoke Key Dialog */}
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="outline" size="icon" className="h-8 w-8 text-destructive">
+                                <Button variant="outline" size="icon" className="h-8 w-8 text-destructive" disabled={sessionStatus !== 'authenticated'}>
                                   <Trash2 className="h-4 w-4" />
                                   <span className="sr-only">Revoke key</span>
                                 </Button>
@@ -484,7 +470,8 @@ export default function ApiKeysPage() {
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                   <AlertDialogAction
                                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                    onClick={() => revokeApiKey(key.id)} // Call revoke function
+                                    onClick={() => revokeApiKey(key.id)}
+                                    disabled={sessionStatus !== 'authenticated'}
                                   >
                                     Revoke
                                   </AlertDialogAction>
@@ -498,7 +485,7 @@ export default function ApiKeysPage() {
                             <div className="relative flex-1">
                               <Input
                                 type={visibleKeys[key.id] ? "text" : "password"}
-                                value={key.token} // Display the full token here
+                                value={key.token}
                                 readOnly
                                 className="pr-10 font-mono text-sm"
                               />
@@ -516,7 +503,7 @@ export default function ApiKeysPage() {
                               variant="outline"
                               size="icon"
                               className="h-10 w-10"
-                              onClick={() => copyToClipboard(key.id, key.token)} // Copy full token
+                              onClick={() => copyToClipboard(key.id, key.token)}
                             >
                               {copiedKey === key.id ? (
                                 <Check className="h-4 w-4 text-green-500" />
@@ -529,7 +516,6 @@ export default function ApiKeysPage() {
                         </CardContent>
                         <CardFooter className="flex justify-between">
                            <div className="text-xs text-muted-foreground">Created: {formatDate(key.created_at)}</div>
-                          {/* Last used requires backend implementation */}
                            <div className="text-xs text-muted-foreground">Last used: {formatRelativeTime(key.lastUsed)}</div>
                         </CardFooter>
                       </Card>
@@ -537,18 +523,17 @@ export default function ApiKeysPage() {
                 )}
               </TabsContent>
 
-              {/* --- Revoked Keys Tab (Placeholder) --- */}
+        {/* --- Revoked Keys Tab (Placeholder) --- */}
               <TabsContent value="revoked" className="space-y-4">
-                <Card>
-                   <CardContent className="py-10 text-center">
-                      <p className="text-muted-foreground">Revoked key display requires backend implementation.</p>
-                   </CardContent>
-                 </Card>
-                {/* Map over revoked keys when data is available */}
+                  <Card>
+             <CardContent className="py-10 text-center">
+                <p className="text-muted-foreground">Revoked key display requires backend implementation.</p>
+                    </CardContent>
+                  </Card>
               </TabsContent>
             </Tabs>
 
-            {/* Security Best Practices Card remains the same */}
+      {/* --- Security Best Practices Card --- */}
             <Card>
               <CardHeader>
                 <CardTitle>API Key Security</CardTitle>
@@ -567,29 +552,8 @@ export default function ApiKeysPage() {
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </main>
-      </div>
-      <footer className="w-full border-t py-6">
-        <div className="container flex flex-col items-center justify-between gap-4 md:flex-row">
-          <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-            © {new Date().getFullYear()} DevPortal. All rights reserved.
-          </p>
-          <div className="flex gap-4">
-            <Link href="/terms" className="text-sm text-muted-foreground hover:underline">
-              Terms
-            </Link>
-            <Link href="/privacy" className="text-sm text-muted-foreground hover:underline">
-              Privacy
-            </Link>
-            <Link href="/contact" className="text-sm text-muted-foreground hover:underline">
-              Contact
-            </Link>
-          </div>
-        </div>
-      </footer>
       <Toaster />
     </div>
-  )
+  );
 }
 
