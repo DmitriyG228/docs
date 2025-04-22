@@ -1,0 +1,156 @@
+/* Adjustments for prose elements */
+.prose {
+  @apply text-foreground;
+}
+
+.prose h1 {
+  @apply mt-8 text-3xl font-bold tracking-tight text-foreground;
+}
+
+.prose h2 {
+  @apply mt-10 border-b pb-2 text-2xl font-semibold tracking-tight;
+}
+
+.prose h3 {
+  @apply mt-8 text-xl font-semibold tracking-tight;
+}
+
+.prose h4 {
+  @apply mt-6 text-lg font-semibold tracking-tight;
+}
+
+.prose a {
+  @apply text-primary font-medium underline underline-offset-4;
+}
+
+.prose p {
+  @apply leading-7 mb-4;
+}
+
+.prose blockquote {
+  @apply mt-6 border-l-2 pl-6 italic;
+}
+
+.prose ul {
+  @apply my-6 ml-6 list-disc;
+}
+
+.prose ul li {
+  @apply mt-2;
+}
+
+.prose ol {
+  @apply my-6 ml-6 list-decimal;
+}
+
+.prose ol li {
+  @apply mt-2;
+}
+
+.prose pre {
+  @apply my-6 rounded-lg border bg-zinc-950 p-4;
+}
+
+.prose pre code {
+  @apply text-sm font-mono text-zinc-50 dark:text-zinc-50;
+  background-color: transparent;
+  padding: 0;
+}
+
+.prose code:not(pre code) {
+  @apply relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm;
+}
+
+/* Syntax highlighting for code blocks */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  @apply text-zinc-500;
+}
+
+.token.punctuation {
+  @apply text-zinc-300;
+}
+
+.token.namespace {
+  opacity: 0.7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  @apply text-amber-500;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  @apply text-emerald-400;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  @apply text-cyan-300;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  @apply text-sky-400;
+}
+
+.token.function,
+.token.class-name {
+  @apply text-violet-400;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  @apply text-rose-400;
+}
+
+/* Table styles */
+.prose table {
+  @apply w-full my-6 border-collapse text-sm;
+}
+
+.prose table thead {
+  @apply bg-muted/50;
+}
+
+.prose table th {
+  @apply px-4 py-2 text-left font-medium text-foreground;
+}
+
+.prose table td {
+  @apply border px-4 py-2 text-foreground;
+}
+
+/* Scrollbar styles for code blocks */
+.prose pre::-webkit-scrollbar {
+  @apply h-2 w-2;
+}
+
+.prose pre::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.prose pre::-webkit-scrollbar-thumb {
+  @apply rounded bg-zinc-700;
+}
+
+.prose pre::-webkit-scrollbar-thumb:hover {
+  @apply bg-zinc-600;
+} 
