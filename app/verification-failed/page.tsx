@@ -25,7 +25,7 @@ export default function VerificationFailedPage() {
         
         <div className="flex flex-col gap-3">
           <Link 
-            href="/pricing" 
+            href="/public-beta" 
             className="inline-flex items-center justify-center w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
           >
             Apply Again

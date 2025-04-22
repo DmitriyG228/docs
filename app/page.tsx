@@ -93,7 +93,7 @@ export default function LandingPage() {
       </section>
             
             <div className="flex flex-wrap gap-4 justify-center mt-4">
-              <Link href="/docs">
+              <Link href="/public-beta">
                 <Button size="lg" className="gap-2">
                   Get Started in 5 Minutes
                   <ArrowRight className="h-4 w-4" />
@@ -138,10 +138,11 @@ export default function LandingPage() {
                     <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">request</span>
                   </div>
                 </div>
-                <pre className="text-sm font-mono language-bash overflow-auto"><code>{`curl -X POST https://api.vexa.ai/v1/bots \\
+                <pre className="text-sm font-mono language-bash overflow-auto"><code>{`curl -X POST https://api.vexa.ai/bots \
   -d '{
-    "meeting_url": "https://meet.google.com/abc-defg-hij",
-    "platform": "google_meet"
+    "platform": "google_meet",
+    "native_meeting_id": "abc-defg-hij",
+    "bot_name": "MyMeetingBot"
   }'`}</code></pre>
               </div>
               
@@ -178,7 +179,7 @@ export default function LandingPage() {
             </div>
             
             <div className="p-4 border-t bg-muted flex justify-center">
-              <Link href="/dashboard">
+              <Link href="/public-beta">
                 <Button size="lg" className="gap-2">
                   Get API Key
                 </Button>
@@ -191,23 +192,35 @@ export default function LandingPage() {
       {/* Features */}
       <section className="container py-10">
         <div className="mx-auto max-w-5xl space-y-8">
-          <div className="space-y-3 text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Enterprise-Grade Features
-            </h2>
-            <p className="mx-auto max-w-[42rem] text-lg text-muted-foreground">
-              Built for secure corporate environments where data security and compliance are non-negotiable
-            </p>
-          </div>
-          
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2">
             <div className="group rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 mb-4 transition-all group-hover:bg-primary/20">
-                <Bot className="h-5 w-5 text-primary" />
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-5 w-5 text-primary">
+                  <path fill="currentColor" d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
               </div>
-              <h3 className="text-lg font-bold mb-1">Meeting Bots</h3>
+              <h3 className="text-lg font-bold mb-1">Open Source</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Fully open source and community-driven development. Customize, extend, and contribute to the project.
+              </p>
+              <Link 
+                href="https://github.com/Vexa-ai/vexa" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+              >
+                Star us on GitHub
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
+            
+            <div className="group rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 mb-4 transition-all group-hover:bg-primary/20">
+                <Zap className="h-5 w-5 text-primary" />
+              </div>
+              <h3 className="text-lg font-bold mb-1">Invisible Latency</h3>
               <p className="text-sm text-muted-foreground">
-                Automated bots that join your meetings on Google Meet, Zoom, Microsoft Teams, and more.
+                Real-time transcription with imperceptible delay, keeping your conversations flowing naturally without interruption.
               </p>
             </div>
             
@@ -215,67 +228,20 @@ export default function LandingPage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 mb-4 transition-all group-hover:bg-primary/20">
                 <Globe className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="text-lg font-bold mb-1">Multilingual Support</h3>
+              <h3 className="text-lg font-bold mb-1">99 Languages Supported</h3>
               <p className="text-sm text-muted-foreground">
-                Real-time transcription in 99 languages with Whisper and real-time translation between languages.
+                Comprehensive language coverage with high-quality transcription for meetings in virtually any language.
               </p>
             </div>
             
             <div className="group rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 mb-4 transition-all group-hover:bg-primary/20">
-                <Zap className="h-5 w-5 text-primary" />
+                <Video className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="text-lg font-bold mb-1">Knowledge Extraction</h3>
+              <h3 className="text-lg font-bold mb-1">Real-Time Translation</h3>
               <p className="text-sm text-muted-foreground">
-                Meeting knowledge extraction with RAG (Retrieval Augmented Generation) for finished meetings.
+                Seamless translation between any language pair in real-time, breaking down communication barriers instantly.
               </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Scalability */}
-      <section className="container py-10">
-        <div className="mx-auto max-w-5xl space-y-8">
-          <div className="space-y-3 text-center">
-            <div className="inline-flex items-center rounded-full border px-4 py-1.5 text-sm font-medium mx-auto">
-              <span className="text-primary">High Performance</span>
-            </div>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Designed for Scale</h2>
-            <p className="mx-auto max-w-[42rem] text-lg text-muted-foreground">
-              High-performance, scalable multiuser service supporting thousands of simultaneous users
-            </p>
-          </div>
-          
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="rounded-xl border bg-card p-5 shadow-sm">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <Server className="h-5 w-5 text-primary" />
-                </div>
-                <h3 className="text-lg font-bold">Microservice Architecture</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">Distributed processing of transcription workloads with horizontal scaling.</p>
-            </div>
-            
-            <div className="rounded-xl border bg-card p-5 shadow-sm">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <RefreshCw className="h-5 w-5 text-primary" />
-                </div>
-                <h3 className="text-lg font-bold">Low Latency</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">5-10 second processing time even at scale, with queue-based audio processing.</p>
-            </div>
-            
-            <div className="rounded-xl border bg-card p-5 shadow-sm">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <FileAudio className="h-5 w-5 text-primary" />
-                </div>
-                <h3 className="text-lg font-bold">Multi-tenant Design</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">Secure data isolation between organizations for enterprise compliance.</p>
             </div>
           </div>
         </div>

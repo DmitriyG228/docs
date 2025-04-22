@@ -52,7 +52,7 @@ Vexa aims to be an **[open-source](https://github.com/Vexa-ai/vexa)**, enterpris
 
 Vexa's API is currently in **closed beta**. We invite developers and teams to apply for free beta access to help us test, refine, and shape the future of Vexa.
 
-➡️ **Apply for your Free Beta API Key:** [https://api.dev.vexa.ai/pricing](https://api.dev.vexa.ai/pricing)
+➡️ **Apply for your Free Beta API Key:** [https://api.dev.vexa.ai/public-beta](https://api.dev.vexa.ai/public-beta)
 
 **What's Next?**
 

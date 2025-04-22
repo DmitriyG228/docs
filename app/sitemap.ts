@@ -17,8 +17,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages = [
     '/',
     '/docs',
-    '/pricing',
+    '/public-beta',
     '/blog',
+    '/terms',
     // Add paths to other important pages like /contact, /terms, /privacy etc.
   ];
 

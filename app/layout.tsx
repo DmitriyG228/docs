@@ -111,8 +111,8 @@ export default async function RootLayout({
                     >
                       API Docs
                     </Link>
-                    <Link href="/pricing" className="text-sm font-medium transition-colors hover:text-primary">
-                      Pricing
+                    <Link href="/public-beta" className="text-sm font-medium transition-colors hover:text-primary">
+                      Public Beta
                     </Link>
                     <Link href="/blog" className="text-sm font-medium transition-colors hover:text-primary">
                       Blog

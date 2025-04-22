@@ -27,7 +27,7 @@ export default function VerificationExpiredPage() {
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
           <Button asChild className="bg-indigo-600 hover:bg-indigo-700">
-            <Link href="/pricing">
+            <Link href="/public-beta">
               Apply Again
             </Link>
           </Button>

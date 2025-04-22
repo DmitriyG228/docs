@@ -159,7 +159,7 @@ export default function DashboardPage() {
                   </div>
                 </CardContent>
                 <CardFooter>
-            <Link href="/pricing">
+            <Link href="/public-beta">
               <Button variant="outline">Upgrade Plan</Button>
             </Link>
                 </CardFooter>

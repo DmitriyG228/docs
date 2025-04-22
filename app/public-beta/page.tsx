@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { CheckCircle2 } from "lucide-react"
 
-export default function PricingPage() {
+export default function PublicBetaPage() {
   return (
     <div className="container max-w-2xl mx-auto py-10">
       <div className="bg-muted p-6 rounded-lg">
