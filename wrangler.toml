@@ -1,0 +1,15 @@
+# Wrangler configuration for Cloudflare Pages
+name = "vexa-router"
+compatibility_date = "2025-04-23"
+
+# Environment variables
+[vars]
+OLD_SITE_URL = "https://old-vexa-site.com"
+
+# Use this section to override environment variables in production
+[env.production.vars]
+# OLD_SITE_URL = "https://production-old-site.com" 
+
+# Use this section to override environment variables in preview/staging
+[env.preview.vars]
+# OLD_SITE_URL = "https://staging-old-site.com" 
