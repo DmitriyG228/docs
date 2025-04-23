@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 export default function PrivacyPage() {
   return (
     <div className="py-10">

@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 import { getAllPostSlugs, getPostData, PostData } from '@/lib/posts';
 import { notFound } from 'next/navigation';
 import { formatDate, absoluteUrl } from '@/lib/utils'; // Import absoluteUrl

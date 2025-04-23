@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import NextAuth, { AuthOptions, User as NextAuthUser } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { JWT } from "next-auth/jwt";

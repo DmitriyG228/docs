@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 import Link from 'next/link';
 import { getSortedPostsData, PostData } from '@/lib/posts';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"; // Assuming shadcn card component

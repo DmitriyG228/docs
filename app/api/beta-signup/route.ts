@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server';
 import { getVerifyEmailConfig } from '@/emails/templates/verification/verify';
 import { storeToken } from '@/lib/token-storage';
