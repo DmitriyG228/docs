@@ -1,5 +1,5 @@
 export const runtime = 'edge';
-import { getAllPostSlugs, getPostData, PostData } from '@/lib/posts';
+import { getPostData, PostData } from '@/lib/posts';
 import { notFound } from 'next/navigation';
 import { formatDate, absoluteUrl } from '@/lib/utils'; // Import absoluteUrl
 import { Metadata, ResolvingMetadata } from 'next';
@@ -62,11 +62,7 @@ export async function generateMetadata(
   }
 }
 
-// Generate static paths for all posts at build time
-export async function generateStaticParams() {
-  const paths = getAllPostSlugs();
-  return paths;
-}
+// Removed generateStaticParams function as it's not compatible with Edge runtime
 
 export default async function Post({ params }: PostProps) {
   let post: PostData;
@@ -178,5 +174,5 @@ export default async function Post({ params }: PostProps) {
   );
 }
 
-// Add revalidate if needed for ISR
-// export const revalidate = 60; // Revalidate every 60 seconds 
+// Add revalidate to enable ISR in Edge runtime
+export const revalidate = 3600; // Revalidate every hour 
