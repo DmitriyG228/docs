@@ -1,0 +1,22 @@
+name = "portal"
+compatibility_date = "2023-08-01"
+
+# Configure the build settings for Pages
+[build]
+command = "pnpm run pages:build"
+output_dir = ".vercel/output/static"
+
+# Bindings for route handling
+[env.production.bindings]
+# These are service bindings that will be created when we define the routes below
+APP = { service = "app" }
+ASSISTANT = { service = "assistant" }
+
+# Routes configuration
+[routes]
+pattern = "/app/*"
+script = "app"
+
+[routes]
+pattern = "/assistant/*"
+script = "assistant" 

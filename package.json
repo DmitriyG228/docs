@@ -7,7 +7,8 @@
     "dev": "npm run setup-docs && next dev",
     "build": "npm run setup-docs && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "pages:build": "next build && next export && mkdir -p .vercel/output/static && cp -r out/* .vercel/output/static/"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
