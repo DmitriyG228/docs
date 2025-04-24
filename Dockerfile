@@ -29,6 +29,10 @@ ENV HOSTNAME="0.0.0.0"
 # ADMIN_API_URL
 # ADMIN_API_TOKEN
 
+ARG NEXT_PUBLIC_GA_MEASUREMENT_ID
+ENV NEXT_PUBLIC_GA_MEASUREMENT_ID=$NEXT_PUBLIC_GA_MEASUREMENT_ID
+
+
 # Build the Next.js application in non-strict mode
 RUN pnpm build || echo "Build completed with warnings"
 
