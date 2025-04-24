@@ -18,7 +18,7 @@ export function formatDate(dateString: string): string {
 
 // Function to generate absolute URLs
 export const absoluteUrl = (path: string) => {
-  // Ensure NEXT_PUBLIC_APP_URL is set in .env.local or environment variables
+  // Ensure NEXT_PUBLIC_APP_URL is set in .env or environment variables
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   return `${baseUrl}${path.startsWith('/') ? path : '/' + path}`;
 };

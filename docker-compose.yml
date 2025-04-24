@@ -1,17 +1,15 @@
-version: '3.8'
-
 services:
   vexa-app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: vexa-app
-    restart: unless-stopped
-    command: pnpm start
+    restart: always
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=production
+    env_file:
+      - .env
+
     # Use a healthcheck that's more lenient
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 0
@@ -25,6 +23,8 @@ services:
       - /app/.next
     networks:
       - vexa-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 networks:
   vexa-network:

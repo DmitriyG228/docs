@@ -5,8 +5,8 @@ WORKDIR /app
 # Copy package files first for better caching
 COPY package.json package-lock.json* pnpm-lock.yaml* ./
 
-# Copy .env file directly
-COPY .env ./.env
+# Copy .env file if it exists (will be overridden by environment variables from docker-compose if provided)
+COPY .env* ./
 
 # Install dependencies
 RUN npm install -g pnpm
@@ -18,16 +18,22 @@ COPY . ./
 # Set environment variables
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# The following environment variables will be provided at runtime via docker-compose
+# GOOGLE_CLIENT_ID
+# GOOGLE_CLIENT_SECRET
+# NEXTAUTH_SECRET
+# NEXTAUTH_URL
+# ADMIN_API_URL
+# ADMIN_API_TOKEN
 
 # Build the Next.js application in non-strict mode
 RUN pnpm build || echo "Build completed with warnings"
 
 # Expose port 3000
 EXPOSE 3000
-
-# Set environment variables
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
 
 # Start the application
 CMD ["pnpm", "start"] 
