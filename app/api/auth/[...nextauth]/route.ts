@@ -15,46 +15,66 @@ interface DbUser {
 async function findOrCreateUser(email: string, name?: string | null, image?: string | null): Promise<DbUser | null> {
   const adminApiUrl = process.env.ADMIN_API_URL || 'http://localhost:8000';
   const adminApiToken = process.env.ADMIN_API_TOKEN;
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY = 500; // ms
+  const FETCH_TIMEOUT = 5000; // 5 seconds timeout
 
   if (!adminApiToken) {
     console.error('[NextAuth] ADMIN_API_TOKEN is not configured. Cannot sync user.');
     return null;
   }
 
-  try {
-    console.log(`[NextAuth] Trying to find or create user: ${email}`);
-    const response = await fetch(`${adminApiUrl}/admin/users`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Admin-API-Key': adminApiToken,
-      },
-      body: JSON.stringify({ email, name, image_url: image }),
-    });
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      console.log(`[NextAuth] Trying to find or create user: ${email} (attempt ${attempt + 1}/${MAX_RETRIES})`);
+      
+      // Setup abort controller for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+      
+      const response = await fetch(`${adminApiUrl}/admin/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-API-Key': adminApiToken,
+        },
+        body: JSON.stringify({ email, name, image_url: image }),
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      const responseData = await response.json();
 
-    const responseData = await response.json();
-
-    // User created (201) or found (200)
-    // response.ok covers status codes in the 200-299 range.
-    if (response.ok) {
-      const statusLog = response.status === 201 ? 'created' : 'found';
-      console.log(`[NextAuth] User ${statusLog}: ${email}, Status: ${response.status}, ID: ${responseData.id}`);
-      // Ensure the response data matches our DbUser structure
-      if (responseData && typeof responseData.id === 'number') {
-        return responseData as DbUser;
+      // User created (201) or found (200)
+      // response.ok covers status codes in the 200-299 range.
+      if (response.ok) {
+        const statusLog = response.status === 201 ? 'created' : 'found';
+        console.log(`[NextAuth] User ${statusLog}: ${email}, Status: ${response.status}, ID: ${responseData.id}`);
+        // Ensure the response data matches our DbUser structure
+        if (responseData && typeof responseData.id === 'number') {
+          return responseData as DbUser;
+        } else {
+          console.error('[NextAuth] User created/found but response format unexpected:', responseData);
+          // Continue to retry instead of failing immediately
+        }
       } else {
-         console.error('[NextAuth] User created/found but response format unexpected:', responseData);
-         return null;
+        console.error(`[NextAuth] Failed to find or create user. Status: ${response.status}`, responseData);
+        // Continue to retry
       }
-    } else {
-      // Handle potential errors if response.ok is false
-      console.error(`[NextAuth] Failed to find or create user. Status: ${response.status}`, responseData);
-      return null;
+    } catch (error) {
+      console.error(`[NextAuth] Error calling internal user API (attempt ${attempt + 1}/${MAX_RETRIES}):`, error);
+      
+      if (attempt < MAX_RETRIES - 1) {
+        console.log(`[NextAuth] Retrying in ${RETRY_DELAY}ms...`);
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+      }
     }
-  } catch (error) {
-    console.error('[NextAuth] Error calling internal user API:', error);
-    return null;
   }
+  
+  // Only return null after all retries have failed
+  console.error(`[NextAuth] All ${MAX_RETRIES} attempts to find/create user failed for ${email}`);
+  return null;
 }
 
 export const authOptions: AuthOptions = {

@@ -26,12 +26,15 @@ import {
   LinkedinIcon,
   CalendarIcon,
   PhoneIcon,
-  SendIcon
+  SendIcon,
+  AlertTriangleIcon,
+  LaptopIcon
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import confetti from 'canvas-confetti';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function GetStartedPage() {
   const [apiKey, setApiKey] = useState("");
@@ -41,6 +44,7 @@ export default function GetStartedPage() {
   const [language, setLanguage] = useState("en");
   const [transcriptSuccess, setTranscriptSuccess] = useState<boolean | null>(null);
   const [showOptionalSteps, setShowOptionalSteps] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   
   // Track completion status for each step
   const [completedSteps, setCompletedSteps] = useState<{[key: number]: boolean}>({
@@ -435,6 +439,19 @@ export default function GetStartedPage() {
     setCopied({});
   };
 
+  // Detect mobile devices
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    if (typeof window !== 'undefined') {
+      checkIsMobile();
+      window.addEventListener('resize', checkIsMobile);
+      return () => window.removeEventListener('resize', checkIsMobile);
+    }
+  }, []);
+
   return (
     <div className="container mx-auto py-10">
       <h1 className="text-4xl font-bold mb-2">Starting Guide</h1>
@@ -451,6 +468,29 @@ export default function GetStartedPage() {
           Reset Progress
         </Button>
       </div>
+      
+      {/* Mobile warning message */}
+      {isMobile && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertTriangleIcon className="h-4 w-4" />
+          <AlertTitle>Desktop Computer Required</AlertTitle>
+          <AlertDescription className="flex flex-col gap-4">
+            <p>This guide involves copying and running terminal commands, which requires a desktop computer environment.</p>
+            
+            <div className="flex flex-col gap-2 bg-background/50 p-3 rounded-md border border-red-200">
+              <h4 className="font-medium flex items-center gap-2">
+                <LaptopIcon className="h-4 w-4" />
+                What you can do:
+              </h4>
+              <ul className="list-disc list-inside space-y-1 text-sm">
+                <li>Bookmark this page and return when you're on a desktop computer</li>
+                <li>Join our <Link href="https://discord.gg/Ga9duGkVz9" target="_blank" className="text-blue-600 hover:underline">Discord community</Link> for mobile-friendly help</li>
+                <li>Contact our support team at <a href="mailto:support@vexa.ai" className="text-blue-600 hover:underline">support@vexa.ai</a></li>
+              </ul>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
       
       {/* Progress bar */}
       <div className="mb-8">
