@@ -88,6 +88,62 @@ export default function GetStartedPage() {
   // Current success message
   const [currentMessage, setCurrentMessage] = useState("");
   
+  // Load saved progress from localStorage on component mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedCompletedSteps = localStorage.getItem('completedSteps');
+      const savedUnlockedSteps = localStorage.getItem('unlockedSteps');
+      const savedApiKey = localStorage.getItem('apiKey');
+      const savedMeetingUrl = localStorage.getItem('meetingUrl');
+      const savedMeetingId = localStorage.getItem('meetingId');
+      const savedOptionalSteps = localStorage.getItem('showOptionalSteps');
+      const savedTranscriptSuccess = localStorage.getItem('transcriptSuccess');
+      
+      if (savedCompletedSteps) {
+        setCompletedSteps(JSON.parse(savedCompletedSteps));
+      }
+      
+      if (savedUnlockedSteps) {
+        setUnlockedSteps(JSON.parse(savedUnlockedSteps));
+      }
+      
+      if (savedApiKey) {
+        setApiKey(savedApiKey);
+      }
+      
+      if (savedMeetingUrl) {
+        setMeetingUrl(savedMeetingUrl);
+      }
+      
+      if (savedMeetingId) {
+        setMeetingId(savedMeetingId);
+      }
+      
+      if (savedOptionalSteps === 'true') {
+        setShowOptionalSteps(true);
+      }
+      
+      if (savedTranscriptSuccess) {
+        setTranscriptSuccess(savedTranscriptSuccess === 'true');
+      }
+    }
+  }, []);
+  
+  // Save progress to localStorage when completedSteps changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('completedSteps', JSON.stringify(completedSteps));
+      localStorage.setItem('unlockedSteps', JSON.stringify(unlockedSteps));
+      localStorage.setItem('apiKey', apiKey);
+      localStorage.setItem('meetingUrl', meetingUrl);
+      localStorage.setItem('meetingId', meetingId);
+      localStorage.setItem('showOptionalSteps', showOptionalSteps.toString());
+      if (transcriptSuccess !== null) {
+        localStorage.setItem('transcriptSuccess', transcriptSuccess.toString());
+      }
+    }
+  }, [completedSteps, unlockedSteps, apiKey, meetingUrl, meetingId, showOptionalSteps, transcriptSuccess]);
+  
   // Update progress when completed steps change
   useEffect(() => {
     // Only count main steps (1, 2, 3, 4) for progress
@@ -329,12 +385,72 @@ export default function GetStartedPage() {
     );
   };
 
+  // Add a function to reset progress
+  const resetProgress = () => {
+    // Clear localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('completedSteps');
+      localStorage.removeItem('unlockedSteps');
+      localStorage.removeItem('apiKey');
+      localStorage.removeItem('meetingUrl');
+      localStorage.removeItem('meetingId');
+      localStorage.removeItem('showOptionalSteps');
+      localStorage.removeItem('transcriptSuccess');
+    }
+    
+    // Reset state
+    setCompletedSteps({
+      1: false, // API Key
+      2: false, // Meeting URL
+      3: false, // Start Bot
+      3.1: false, // Bot joining process
+      4: false, // Get Transcription
+      4.1: false, // Check if transcripts working
+      5: false, // Change Language (optional)
+      6: false, // Stop Bot (always shown)
+      7: false, // List Meetings (optional)
+      8: false // Check Bot Status (optional)
+    });
+    
+    setUnlockedSteps({
+      1: true,  // API Key (initially unlocked)
+      2: false, // Meeting URL
+      3: false, // Start Bot
+      3.1: false, // Bot joining process
+      4: false, // Get Transcription
+      4.1: false, // Check if transcripts working
+      5: false, // Change Language (optional)
+      6: false, // Stop Bot (always shown)
+      7: false, // List Meetings (optional)
+      8: false // Check Bot Status (optional)
+    });
+    
+    setApiKey("");
+    setMeetingUrl("");
+    setMeetingId("");
+    setShowOptionalSteps(false);
+    setTranscriptSuccess(null);
+    setProgress(0);
+    setCurrentMessage("");
+    setCopied({});
+  };
+
   return (
     <div className="container mx-auto py-10">
       <h1 className="text-4xl font-bold mb-2">Starting Guide</h1>
-      <p className="text-xl mb-6">
-        Follow these steps to get your first transcription in under 5 minutes.
-      </p>
+      <div className="flex justify-between items-center mb-6">
+        <p className="text-xl">
+          Follow these steps to get your first transcription in under 5 minutes.
+        </p>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={resetProgress}
+          className="text-sm"
+        >
+          Reset Progress
+        </Button>
+      </div>
       
       {/* Progress bar */}
       <div className="mb-8">
