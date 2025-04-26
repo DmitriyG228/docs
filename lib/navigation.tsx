@@ -27,6 +27,10 @@ export const navigationSections: NavigationSection[] = [
         label: "Installation",
         href: "/docs/getting-started/installation",
       },
+      {
+        label: "User Testing Guide",
+        href: "/get-started",
+      },
     ],
   },
   {

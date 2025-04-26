@@ -93,19 +93,10 @@ export default function LandingPage() {
       </section>
             
             <div className="flex flex-wrap gap-4 justify-center mt-4">
-              <Link href="/public-beta">
+              <Link href="/get-started">
                 <Button size="lg" className="gap-2">
                   Get Started in 5 Minutes
                   <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link 
-                href="https://github.com/Vexa-ai/vexa/blob/feature/traefik/docs/user_api_guide.md"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button size="lg" variant="outline">
-                  View API Docs
                 </Button>
               </Link>
             </div>
@@ -179,9 +170,9 @@ export default function LandingPage() {
             </div>
             
             <div className="p-4 border-t bg-muted flex justify-center">
-              <Link href="/public-beta">
+              <Link href="/get-started">
                 <Button size="lg" className="gap-2">
-                  Get API Key
+                  Starting Guide
                 </Button>
               </Link>
             </div>

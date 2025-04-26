@@ -103,6 +103,9 @@ export default async function RootLayout({
                     <Link href="/" className="text-sm font-medium transition-colors hover:text-primary">
                       Home
                     </Link>
+                    <Link href="/get-started" className="text-sm font-medium transition-colors hover:text-primary">
+                      Get Started
+                    </Link>
                     <Link 
                       href="https://github.com/Vexa-ai/vexa/blob/feature/traefik/docs/user_api_guide.md" 
                       target="_blank"

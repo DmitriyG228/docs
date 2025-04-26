@@ -51,8 +51,8 @@ export default function PublicBetaPage() {
                 Log in with Google
               </Button>
             </a>
-            <a href="/dashboard/api-keys">
-              <Button variant="outline" className="w-full">Get API Key</Button>
+            <a href="/get-started">
+              <Button variant="outline" className="w-full">Starting Guide</Button>
             </a>
             <a href="https://github.com/Vexa-ai/vexa/blob/feature/traefik/docs/user_api_guide.md" target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" className="w-full">View API Documentation</Button>
