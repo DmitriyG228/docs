@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ModeToggle } from '@/components/mode-toggle'
-import { Github, Linkedin } from 'lucide-react'
+import { Github, Linkedin, Menu, X } from 'lucide-react'
 import { CookieConsent } from '@/components/cookie-consent'
 import AuthProvider from "@/components/AuthProvider";
 import AuthButtons from "@/components/AuthButtons";
@@ -57,6 +57,29 @@ export default async function RootLayout({
                   sidebar.classList.add('sticky', 'top-16', 'h-[calc(100vh-4rem)]', 'overflow-y-auto');
                 }
               });
+
+              // Mobile menu toggle
+              const menuToggle = document.getElementById('mobile-menu-toggle');
+              const mobileMenu = document.getElementById('mobile-menu');
+              const menuIcon = document.getElementById('menu-icon');
+              const closeIcon = document.getElementById('close-icon');
+              
+              if (menuToggle && mobileMenu && menuIcon && closeIcon) {
+                menuToggle.addEventListener('click', function() {
+                  const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+                  menuToggle.setAttribute('aria-expanded', !expanded ? 'true' : 'false');
+                  mobileMenu.classList.toggle('hidden');
+                  
+                  // Toggle between menu and close icons
+                  if (!expanded) {
+                    menuIcon.classList.add('hidden');
+                    closeIcon.classList.remove('hidden');
+                  } else {
+                    menuIcon.classList.remove('hidden');
+                    closeIcon.classList.add('hidden');
+                  }
+                });
+              }
             });
           `
         }} />
@@ -99,6 +122,8 @@ export default async function RootLayout({
                       <span className="font-bold text-xl">Vexa</span>
                     </Link>
                   </div>
+                  
+                  {/* Desktop Navigation */}
                   <nav className="hidden md:flex items-center gap-6">
                     <Link href="/" className="text-sm font-medium transition-colors hover:text-primary">
                       Home
@@ -126,6 +151,7 @@ export default async function RootLayout({
                       </Link>
                     )}
                   </nav>
+                  
                   <div className="flex items-center gap-2">
                     <Link 
                       href="https://github.com/Vexa-ai/vexa" 
@@ -146,20 +172,69 @@ export default async function RootLayout({
                     </Link>
                     <ModeToggle />
                     <AuthButtons />
+                    
+                    {/* Mobile menu toggle */}
+                    <button
+                      id="mobile-menu-toggle"
+                      type="button"
+                      className="md:hidden p-2 text-muted-foreground rounded-md hover:bg-accent hover:text-accent-foreground"
+                      aria-controls="mobile-menu"
+                      aria-expanded="false"
+                    >
+                      <span className="sr-only">Open main menu</span>
+                      <Menu id="menu-icon" className="h-6 w-6" aria-hidden="true" />
+                      <X id="close-icon" className="h-6 w-6 hidden" aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Mobile menu, hidden by default */}
+                <div id="mobile-menu" className="hidden md:hidden border-t">
+                  <div className="space-y-1 px-4 py-4">
+                    <Link href="/" className="text-sm block w-full py-2 font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-md px-3 transition-colors">
+                      Home
+                    </Link>
+                    <Link href="/get-started" className="text-sm block w-full py-2 font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-md px-3 transition-colors">
+                      Get Started
+                    </Link>
+                    <Link 
+                      href="https://github.com/Vexa-ai/vexa/blob/feature/traefik/docs/user_api_guide.md" 
+                      target="_blank"
+                      className="text-sm block w-full py-2 font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-md px-3 transition-colors"
+                    >
+                      API Docs
+                    </Link>
+                    <Link href="/public-beta" className="text-sm block w-full py-2 font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-md px-3 transition-colors">
+                      Public Beta
+                    </Link>
+                    <Link href="/blog" className="text-sm block w-full py-2 font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-md px-3 transition-colors">
+                      Blog
+                    </Link>
+                    {session && (
+                      <Link href="/dashboard/api-keys" className="text-sm block w-full py-2 font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-md px-3 transition-colors">
+                        API Keys
+                      </Link>
+                    )}
+                    <div className="border-t pt-4 mt-4 px-3">
+                      {/* Mobile menu footer space if needed */}
+                    </div>
                   </div>
                 </div>
               </header>
+              
               <main className="flex-1">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                   {children}
                 </div>
               </main>
+              
               <footer className="w-full border-t py-6">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-between gap-4 md:flex-row">
                   <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
                     © {new Date().getFullYear()} Vexa.ai Inc. All rights reserved.
                   </p>
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-col sm:flex-row items-center gap-4">
+                    {/* Social links */}
                     <div className="flex items-center gap-4">
                       <Link href="https://github.com/Vexa-ai/vexa" className="text-muted-foreground hover:text-foreground">
                         <Github className="h-5 w-5" />
@@ -202,14 +277,16 @@ export default async function RootLayout({
                         <span className="sr-only">X (Twitter)</span>
                       </Link>
                     </div>
-                    <div className="hidden md:flex gap-4">
-                      <Link href="/terms" className="text-sm text-muted-foreground hover:underline">
+                    
+                    {/* Legal links - now visible on all screen sizes */}
+                    <div className="flex gap-4 mt-2 sm:mt-0">
+                      <Link href="/terms" className="text-xs sm:text-sm text-muted-foreground hover:underline">
                         Terms
                       </Link>
-                      <Link href="/privacy" className="text-sm text-muted-foreground hover:underline">
+                      <Link href="/privacy" className="text-xs sm:text-sm text-muted-foreground hover:underline">
                         Privacy
                       </Link>
-                      <Link href="/contact" className="text-sm text-muted-foreground hover:underline">
+                      <Link href="/contact" className="text-xs sm:text-sm text-muted-foreground hover:underline">
                         Contact
                       </Link>
                     </div>

@@ -485,7 +485,7 @@ export default function GetStartedPage() {
               <ul className="list-disc list-inside space-y-1 text-sm">
                 <li>Bookmark this page and return when you're on a desktop computer</li>
                 <li>Join our <Link href="https://discord.gg/Ga9duGkVz9" target="_blank" className="text-blue-600 hover:underline">Discord community</Link> for mobile-friendly help</li>
-                <li>Contact our support team at <a href="mailto:support@vexa.ai" className="text-blue-600 hover:underline">support@vexa.ai</a></li>
+                <li>Contact our support team at <a href="mailto:dmitry@vexa.ai" className="text-blue-600 hover:underline">dmitry@vexa.ai</a></li>
               </ul>
             </div>
           </AlertDescription>
