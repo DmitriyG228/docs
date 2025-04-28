@@ -39,7 +39,7 @@ export default function VerificationFailedPage() {
           </Link>
           
           <a 
-            href="mailto:dmitry@vexa.ai" 
+            href="mailto:support@vexa.ai" 
             className="text-sm text-indigo-600 hover:text-indigo-800 transition mt-2"
           >
             Contact Support

@@ -82,13 +82,6 @@ export const authOptions: AuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-      authorization: {
-        params: {
-          prompt: "select_account",
-          access_type: "offline",
-          response_type: "code"
-        }
-      }
     }),
   ],
   session: {
@@ -134,21 +127,10 @@ export const authOptions: AuthOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET, // Secret for signing JWTs
-  pages: {
-    signIn: '/', // Redirect to homepage for sign in
-    error: '/auth-error', // Custom error page
-  },
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-      }
-    }
-  }
+  // pages: { // Optional: Define custom pages if needed
+  //   signIn: '/login',
+  //   // error: '/auth/error', // Error code passed in query string as ?error=
+  // }
 };
 
 const handler = NextAuth(authOptions);
