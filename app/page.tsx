@@ -91,23 +91,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-
             
-            <div className="flex flex-wrap gap-4 justify-center mt-4">
-              <Link href="/get-started">
-                <Button size="lg" className="gap-2">
-                  Get Started in 5 Minutes
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-            
-
-          </div>
-        </div>
-      </section>
-
       {/* n8n Integration Banner */}
       <section className="container py-3">
         <div className="mx-auto max-w-5xl">
@@ -138,6 +122,22 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+            
+            <div className="flex flex-wrap gap-4 justify-center mt-4">
+              <Link href="/get-started">
+                <Button size="lg" className="gap-2">
+                  Get Started in 5 Minutes
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+            
+
+          </div>
+        </div>
+      </section>
+
+
       {/* API Example */}
       <section className="container py-10">
         <div className="mx-auto max-w-5xl">

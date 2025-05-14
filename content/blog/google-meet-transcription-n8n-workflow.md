@@ -12,7 +12,7 @@ summary: "Learn how to automate Google Meet transcripts in n8n with Vexa's open�
 Looking for the easiest way to add **Google Meet transcription to n8n**?  
 With the open‑source **[Vexa API](https://github.com/Vexa-ai/vexa)** you can drop a bot into any Meet and capture **real‑time and post‑meeting transcripts**—all via **two REST calls** already wired into a ready‑to‑import workflow.
 
-## Quick Overview
+## Quick Overview (Why Teams Search "Google Meet Transcript Automation")
 
 - **Join & transcribe in minutes** – No browser extensions or complex node setup
 - **Real‑time triggers + full post‑meeting archive**  

@@ -17,8 +17,12 @@ export async function generateMetadata(
   { params }: PostProps,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
+  // Await the entire params object before accessing properties
+  const resolvedParams = await params;
+  const slug = resolvedParams.slug;
+  
   try {
-    const post = await getPostData(params.slug);
+    const post = await getPostData(slug);
     // Assume default OG image is at public/images/og-default.png
     const ogImage = post.heroImage ? absoluteUrl(post.heroImage) : absoluteUrl('/images/og-default.png');
 
@@ -53,7 +57,7 @@ export async function generateMetadata(
     };
   } catch (error) {
     // Handle case where post is not found during metadata generation
-    console.error(`Metadata generation failed for slug "${params.slug}":`, error);
+    console.error(`Metadata generation failed for slug "${slug}":`, error);
     return {
       title: 'Post Not Found',
       description: 'This blog post could not be found.'
@@ -68,9 +72,13 @@ export async function generateStaticParams() {
 }
 
 export default async function Post({ params }: PostProps) {
+  // Await the entire params object before accessing properties
+  const resolvedParams = await params;
+  const slug = resolvedParams.slug;
+  
   let post: PostData;
   try {
-    post = await getPostData(params.slug);
+    post = await getPostData(slug);
   } catch (error) {
     // If getPostData throws (e.g., file not found), trigger a 404 page
     notFound();
