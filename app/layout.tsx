@@ -36,6 +36,7 @@ export const metadata: Metadata = {
 
 // Google Analytics Measurement ID from environment variable
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+const UMAMI_WEBSITE_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
 
 export default async function RootLayout({
   children,
@@ -74,6 +75,14 @@ export default async function RootLayout({
               `
             }} />
           </>
+        )}
+        {/* Umami Analytics */}
+        {UMAMI_WEBSITE_ID && (
+          <script 
+            defer 
+            src="https://cloud.umami.is/script.js" 
+            data-website-id={UMAMI_WEBSITE_ID}
+          />
         )}
       </head>
       <body className={inter.className}>
