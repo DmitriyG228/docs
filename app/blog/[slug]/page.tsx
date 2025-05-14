@@ -6,6 +6,8 @@ import Image from 'next/image'; // Import next/image
 import Link from 'next/link'; // Import Link
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // Import Avatar components
 
+export const dynamic = 'force-dynamic';
+
 interface PostProps {
   params: {
     slug: string;
