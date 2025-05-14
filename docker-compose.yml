@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_GA_MEASUREMENT_ID: ${NEXT_PUBLIC_GA_MEASUREMENT_ID}
+        NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
     container_name: vexa-app
     restart: always
     ports:
