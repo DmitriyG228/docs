@@ -91,6 +91,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+
             
             <div className="flex flex-wrap gap-4 justify-center mt-4">
               <Link href="/get-started">
@@ -106,7 +108,36 @@ export default function LandingPage() {
         </div>
       </section>
 
-
+      {/* n8n Integration Banner */}
+      <section className="container py-3">
+        <div className="mx-auto max-w-5xl">
+          <div className="rounded-xl border bg-card p-4 shadow-sm hover:shadow-md transition-all">
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0">
+                <Image 
+                  src="/n8n-logo.svg" 
+                  alt="n8n Logo" 
+                  width={50} 
+                  height={50}
+                  className="object-contain"
+                />
+              </div>
+              <div className="flex-grow">
+                <h3 className="text-lg font-semibold mb-1">New: Easy n8n Integration</h3>
+                <p className="text-sm text-muted-foreground">
+                  Get Google Meet transcripts in n8n with our simple 2-node setup. No complex configuration required.
+                </p>
+              </div>
+              <div className="flex-shrink-0">
+                <Link href="/blog/google-meet-transcription-n8n-workflow" className="inline-flex items-center gap-1 text-primary hover:underline">
+                  <span>Learn more</span>
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       {/* API Example */}
       <section className="container py-10">
         <div className="mx-auto max-w-5xl">
