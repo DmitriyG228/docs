@@ -34,6 +34,8 @@ export const metadata: Metadata = {
   }
 }
 
+export const dynamic = 'force-dynamic';
+
 // Google Analytics Measurement ID from environment variable
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 const UMAMI_WEBSITE_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;

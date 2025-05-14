@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
@@ -9,8 +9,7 @@ COPY package.json package-lock.json* pnpm-lock.yaml* ./
 COPY .env* ./
 
 # Install dependencies
-RUN npm install -g pnpm
-RUN pnpm install
+RUN npm install -g pnpm && pnpm install --frozen-lockfile --prod
 
 # Copy the rest of the application
 COPY . ./
@@ -29,14 +28,17 @@ ENV HOSTNAME="0.0.0.0"
 # ADMIN_API_URL
 # ADMIN_API_TOKEN
 
+ARG NEXT_PUBLIC_APP_URL
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+
 ARG NEXT_PUBLIC_GA_MEASUREMENT_ID
 ENV NEXT_PUBLIC_GA_MEASUREMENT_ID=$NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 ARG NEXT_PUBLIC_UMAMI_WEBSITE_ID
 ENV NEXT_PUBLIC_UMAMI_WEBSITE_ID=$NEXT_PUBLIC_UMAMI_WEBSITE_ID
 
-# Build the Next.js application in non-strict mode
-RUN pnpm build || echo "Build completed with warnings"
+# Build the Next.js application
+RUN pnpm run build
 
 # Expose port 3000
 EXPOSE 3000
