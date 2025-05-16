@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { AlertCircle, Check, Copy, Eye, EyeOff, Key, Loader2, Plus, Shield, Trash2 } from "lucide-react"
+import { AlertCircle, Check, Copy, Eye, EyeOff, Key, Loader2, Plus, Shield, Trash2, LinkedinIcon, PhoneIcon, SendIcon, CalendarIcon, MessageSquareIcon } from "lucide-react"
 import { useSession } from "next-auth/react"
 
+import { DiscordIcon } from "@/components/DiscordIcon"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -544,25 +545,100 @@ export default function ApiKeysPage() {
               </TabsContent>
             </Tabs>
 
+
+
+      {/* Join our Community Section - Card version */}
+      <Card className="mt-8">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div>
+              <CardTitle>Join Our Discord Community</CardTitle>
+              <CardDescription className="mt-1">
+                Connect with other developers, get help, share your projects, and stay updated.
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Link 
+            href="https://discord.gg/7PKF9SUgrV" 
+            target="_blank"
+            className="inline-flex items-center gap-2 bg-primary px-4 py-2 rounded-md font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <DiscordIcon size={18} />
+            Join
+          </Link>
+        </CardContent>
+      </Card>
+
+      {/* Connect with CEO section - Card version */}
+      <Card className="mt-8">
+        <CardHeader>
+          <div className="flex items-start gap-4">
+            <img 
+              src="https://media.licdn.com/dms/image/v2/C4D03AQFXWMxI1np6hg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1647969193758?e=1750896000&v=beta&t=-xq4LQ-_9gYfy57ZbNVOonH-mfe7hCd6IobEZ5PDtR4" 
+              alt="Dmitry Grankin, CEO of Vexa" 
+              className="w-16 h-16 rounded-full object-cover border-2 border-white" // Adjusted size for card header
+            />
+            <div>
+              <CardTitle>Connect with Dmitry Grankin</CardTitle>
+              <CardDescription className="mt-1">CEO of Vexa</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Let's get to know each other! Share your use case, I am really curious and want to help with your journey.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link 
+              href="https://www.linkedin.com/in/dmitry-grankin/" 
+              target="_blank"
+              className="inline-flex items-center gap-2 bg-[#0077B5] px-3 py-1.5 rounded-md text-xs font-medium hover:bg-opacity-90 transition-colors text-white"
+            >
+              <LinkedinIcon size={16} />
+              LinkedIn
+            </Link>
+            <Link 
+              href="https://t.me/dmitrygrankin" 
+              target="_blank"
+              className="inline-flex items-center gap-2 bg-[#0088cc] px-3 py-1.5 rounded-md text-xs font-medium hover:bg-opacity-90 transition-colors text-white"
+            >
+              <SendIcon size={16} />
+              Telegram
+            </Link>
+            <Link 
+              href="https://cal.com/dmitrygrankin/30-min" 
+              target="_blank"
+              className="inline-flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-md text-xs font-medium hover:bg-slate-200 transition-colors text-slate-800 border border-gray-300 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            >
+              <CalendarIcon size={16} />
+              Book a Meeting
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* --- Security Best Practices Card --- */}
-            <Card>
-              <CardHeader>
-                <CardTitle>API Key Security</CardTitle>
-                <CardDescription>Best practices for managing your API keys securely.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <h3 className="font-medium">Keep your API keys secure</h3>
-                  <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
-                    <li>Never expose your API keys in client-side code or public repositories</li>
-                    <li>Store API keys in environment variables or a secure key management system</li>
-                    <li>Rotate your API keys periodically, especially after team member changes</li>
-                    <li>Use different API keys for different environments (development, staging, production)</li>
-                    <li>Revoke unused or compromised API keys immediately</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>API Key Security</CardTitle>
+          <CardDescription>Best practices for managing your API keys securely.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <h3 className="font-medium">Keep your API keys secure</h3>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
+              <li>Never expose your API keys in client-side code or public repositories</li>
+              <li>Store API keys in environment variables or a secure key management system</li>
+              <li>Rotate your API keys periodically, especially after team member changes</li>
+              <li>Use different API keys for different environments (development, staging, production)</li>
+              <li>Revoke unused or compromised API keys immediately</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+
       <Toaster />
     </div>
   );

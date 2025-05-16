@@ -944,14 +944,7 @@ export default function GetStartedPage() {
                         <LinkedinIcon size={18} />
                         Connect on LinkedIn
                       </Link>
-                      <Link 
-                        href="https://wa.me/351933182281" 
-                        target="_blank"
-                        className="inline-flex items-center gap-2 bg-[#25D366] px-4 py-2 rounded-md font-medium hover:bg-opacity-90 transition-colors text-white"
-                      >
-                        <PhoneIcon size={18} />
-                        WhatsApp
-                      </Link>
+
                       <Link 
                         href="https://t.me/dmitrygrankin" 
                         target="_blank"

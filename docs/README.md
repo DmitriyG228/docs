@@ -21,6 +21,37 @@ The beta signup form integrates with SendPulse to collect and manage applicant i
      SENDPULSE_MAILING_LIST_ID=your_mailing_list_id
      ```
 
+## Tracardi Integration
+
+The site integrates with Tracardi for user profile stitching and customer data platform capabilities.
+
+### Setup
+
+1. Make sure the Tracardi stack is running (see `/tracardi-setup/README.md`)
+2. Set the Tracardi endpoint in your `.env` file:
+   ```
+   NEXT_PUBLIC_TRACARDI_ENDPOINT=http://localhost:8686
+   ```
+
+### User Profile Stitching
+
+The integration connects user profiles across multiple identifiers:
+- Google email (from authentication)
+- Umami ID (from analytics)
+- Backend user ID (from our database)
+
+Integration points:
+1. Authentication flow - When a user logs in via Google Auth
+2. Registration flow - When a new user is created
+3. Umami events forwarding - All Umami analytics events are sent to Tracardi
+
+### Tracardi Events
+
+The following events are sent to Tracardi:
+- `user-auth` - When a user logs in
+- `user-registration` - When a new user registers
+- Forwarded Umami events (e.g., `signup_clicked`, `page_view`, etc.)
+
 ## Google Analytics Setup
 
 The site includes basic Google Analytics tracking. Follow these steps to set it up:
@@ -75,6 +106,8 @@ The following environment variables are used in the project:
 | `SENDPULSE_MAILING_LIST_ID` | The ID of your SendPulse mailing list for beta applicants |
 | `NEXT_PUBLIC_SITE_URL` | The URL of your site (used for SEO) |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Your Google Analytics 4 Measurement ID |
+| `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | Your Umami Website ID for analytics |
+| `NEXT_PUBLIC_TRACARDI_ENDPOINT` | The URL for your Tracardi API (default: http://localhost:8686) |
 
 ## API Routes
 
