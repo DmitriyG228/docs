@@ -38,12 +38,12 @@ export default function VerificationFailedPage() {
             Return to Homepage
           </Link>
           
-          <a 
+          {/* <a 
             href="mailto:support@vexa.ai" 
             className="text-sm text-indigo-600 hover:text-indigo-800 transition mt-2"
           >
             Contact Support
-          </a>
+          </a> */}
         </div>
       </div>
     </div>

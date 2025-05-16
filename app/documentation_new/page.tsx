@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 export default function DocumentationRedirect() {
   useEffect(() => {
-    window.location.href = "https://github.com/Vexa-ai/vexa/blob/feature/traefik/docs/user_api_guide.md";
+    window.location.href = "https://github.com/Vexa-ai/vexa/blob/main/docs/user_api_guide.md";
   }, []);
 
   return (

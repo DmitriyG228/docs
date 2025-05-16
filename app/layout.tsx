@@ -9,6 +9,7 @@ import { Github, Linkedin } from 'lucide-react'
 import { CookieConsent } from '@/components/cookie-consent'
 import AuthProvider from "@/components/AuthProvider";
 import AuthButtons from "@/components/AuthButtons";
+import { MobileNav } from "@/components/ui/mobile-nav";
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth/next';
 import './globals.css'
@@ -118,7 +119,7 @@ export default async function RootLayout({
                       Get Started
                     </Link>
                     <Link 
-                      href="https://github.com/Vexa-ai/vexa/blob/feature/traefik/docs/user_api_guide.md" 
+                      href="https://github.com/Vexa-ai/vexa/blob/main/docs/user_api_guide.md" 
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm font-medium transition-colors hover:text-primary"
@@ -138,6 +139,9 @@ export default async function RootLayout({
                     )}
                   </nav>
                   <div className="flex items-center gap-2">
+                    <div className="md:hidden">
+                      <MobileNav />
+                    </div>
                     <Link 
                       href="https://github.com/Vexa-ai/vexa" 
                       target="_blank" 
