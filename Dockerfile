@@ -1,47 +1,49 @@
-FROM node:20-alpine
-
-WORKDIR /app
-
-# Copy package files first for better caching
-COPY package.json package-lock.json* pnpm-lock.yaml* ./
-
-# Copy .env file if it exists (will be overridden by environment variables from docker-compose if provided)
-COPY .env* ./
-
+# ---- Base Stage ----
 # Install dependencies
-RUN npm install -g pnpm && pnpm install --frozen-lockfile --prod
+FROM node:20-alpine AS base
+WORKDIR /app
+COPY package.json pnpm-lock.yaml* ./
+# Install pnpm and all dependencies (including devDependencies)
+RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
-# Copy the rest of the application
-COPY . ./
-
-# Set environment variables
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-# The following environment variables will be provided at runtime via docker-compose
-# GOOGLE_CLIENT_ID
-# GOOGLE_CLIENT_SECRET
-# NEXTAUTH_SECRET
-# NEXTAUTH_URL
-# ADMIN_API_URL
-# ADMIN_API_TOKEN
-
-ARG NEXT_PUBLIC_APP_URL
-ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
-
-ARG NEXT_PUBLIC_GA_MEASUREMENT_ID
-ENV NEXT_PUBLIC_GA_MEASUREMENT_ID=$NEXT_PUBLIC_GA_MEASUREMENT_ID
-
-ARG NEXT_PUBLIC_UMAMI_WEBSITE_ID
-ENV NEXT_PUBLIC_UMAMI_WEBSITE_ID=$NEXT_PUBLIC_UMAMI_WEBSITE_ID
-
-# Build the Next.js application
+# ---- Builder Stage ----
+# Build the application
+FROM base AS builder
+WORKDIR /app
+# Copy all source files (respecting .dockerignore or .gitignore for gcloud builds submit)
+COPY . .
+# Run the build (output: 'standalone' is configured in next.config.mjs)
 RUN pnpm run build
 
-# Expose port 3000
+# ---- Runner Stage ----
+# Create the final, lean production image
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+# Set environment variables for production
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+# PORT will be set by Cloud Run, but 3000 is a common default if run locally
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+# NEXTAUTH_SECRET and NEXT_PUBLIC_APP_URL will be set via Cloud Run environment variables.
+
+# Copy the standalone output from the builder stage.
+# This includes the server.js and other necessary files for running the app.
+COPY --from=builder /app/.next/standalone ./
+
+# Copy the public assets from the builder stage to the 'public' directory
+# in the standalone app directory. The standalone server.js will serve these.
+COPY --from=builder /app/public ./public
+
+# Copy the static Next.js assets (JS, CSS chunks) from the builder stage
+# to the '.next/static' directory within the standalone app directory.
+# The server.js will serve these from .next/static.
+COPY --from=builder /app/.next/static ./.next/static
+
+# Expose the port the app runs on
 EXPOSE 3000
 
-# Start the application
-CMD ["pnpm", "start"] 
+# The command to run the standalone server.
+# We are in /app, which now contains the contents of .next/standalone.
+CMD ["node", "server.js"] 
