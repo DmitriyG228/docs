@@ -1,0 +1,16 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+  - 'build'
+  - '--tag'
+  - 'gcr.io/spry-pipe-425611-c4/docs-website'
+  - '--build-arg' 
+  - 'ADMIN_API_TOKEN=${_ADMIN_API_TOKEN}'
+  - '.'
+images:
+- 'gcr.io/spry-pipe-425611-c4/docs-website'
+# Removed hardcoded substitutions for security
+# Use Cloud Build environment variables or secret manager instead
+
+
+

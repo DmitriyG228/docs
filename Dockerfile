@@ -9,6 +9,12 @@ RUN npm install -g pnpm && pnpm install --frozen-lockfile
 # ---- Builder Stage ----
 # Build the application
 FROM base AS builder
+
+# Accept ADMIN_API_TOKEN as a build argument
+ARG ADMIN_API_TOKEN
+# Make it available as an environment variable during this build stage
+ENV ADMIN_API_TOKEN=$ADMIN_API_TOKEN
+
 WORKDIR /app
 # Copy all source files (respecting .dockerignore or .gitignore for gcloud builds submit)
 COPY . .
@@ -26,7 +32,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # PORT will be set by Cloud Run, but 3000 is a common default if run locally
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-# NEXTAUTH_SECRET and NEXT_PUBLIC_APP_URL will be set via Cloud Run environment variables.
+
+# Make ADMIN_API_TOKEN available in the runner stage as well
+# It can be overridden by Cloud Run service environment variables at runtime
+ARG ADMIN_API_TOKEN
+ENV ADMIN_API_TOKEN=$ADMIN_API_TOKEN
 
 # Copy the standalone output from the builder stage.
 # This includes the server.js and other necessary files for running the app.

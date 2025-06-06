@@ -20,9 +20,12 @@ async function findOrCreateUser(email: string, name?: string | null, image?: str
   const FETCH_TIMEOUT = 5000; // 5 seconds timeout
 
   if (!adminApiToken) {
-    console.error('[NextAuth] ADMIN_API_TOKEN is not configured. Cannot sync user.');
+    console.error('[NextAuth] ADMIN_API_TOKEN is not configured or empty. Cannot sync user.');
     return null;
   }
+  // Log the token and URL to ensure they are correctly loaded from env
+  console.log(`[NextAuth] findOrCreateUser: adminApiUrl: ${adminApiUrl}`);
+  console.log(`[NextAuth] findOrCreateUser: adminApiToken (first 5 chars): ${adminApiToken ? adminApiToken.substring(0, 5) : 'UNDEFINED_OR_EMPTY'}`);
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
@@ -44,23 +47,25 @@ async function findOrCreateUser(email: string, name?: string | null, image?: str
       
       clearTimeout(timeoutId);
       
-      const responseData = await response.json();
+      // Try to get text first for robust error reporting, then try JSON if response.ok
+      let responseText = await response.text();
 
-      // User created (201) or found (200)
-      // response.ok covers status codes in the 200-299 range.
       if (response.ok) {
-        const statusLog = response.status === 201 ? 'created' : 'found';
-        console.log(`[NextAuth] User ${statusLog}: ${email}, Status: ${response.status}, ID: ${responseData.id}`);
-        // Ensure the response data matches our DbUser structure
-        if (responseData && typeof responseData.id === 'number') {
-          return responseData as DbUser;
-        } else {
-          console.error('[NextAuth] User created/found but response format unexpected:', responseData);
-          // Continue to retry instead of failing immediately
+        try {
+          const responseData = JSON.parse(responseText); // Parse the text as JSON
+          const statusLog = response.status === 201 ? 'created' : 'found';
+          console.log(`[NextAuth] User ${statusLog}: ${email}, Status: ${response.status}, ID: ${responseData.id}`);
+          if (responseData && typeof responseData.id === 'number') {
+            return responseData as DbUser;
+          } else {
+            console.error('[NextAuth] User created/found but response format unexpected:', responseData);
+          }
+        } catch (jsonError) {
+          console.error(`[NextAuth] Successfully fetched but failed to parse JSON response (Status: ${response.status}): ${responseText}`, jsonError);
         }
       } else {
-        console.error(`[NextAuth] Failed to find or create user. Status: ${response.status}`, responseData);
-        // Continue to retry
+        // Log the responseText directly as it might not be JSON
+        console.error(`[NextAuth] Failed to find or create user. Status: ${response.status}, Response: ${responseText}`);
       }
     } catch (error) {
       console.error(`[NextAuth] Error calling internal user API (attempt ${attempt + 1}/${MAX_RETRIES}):`, error);
@@ -80,8 +85,16 @@ async function findOrCreateUser(email: string, name?: string | null, image?: str
 export const authOptions: AuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+        },
+      },
+      checks: ['pkce', 'state'],
     }),
   ],
   session: {
@@ -131,6 +144,7 @@ export const authOptions: AuthOptions = {
   //   signIn: '/login',
   //   // error: '/auth/error', // Error code passed in query string as ?error=
   // }
+  useSecureCookies: process.env.NODE_ENV === 'production',
 };
 
 const handler = NextAuth(authOptions);

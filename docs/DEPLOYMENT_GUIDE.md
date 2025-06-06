@@ -57,7 +57,7 @@ If you only need to change environment variables and the application code/image 
     sudo gcloud run services update docs-website \
         --platform managed \
         --region us-central1 \
-        --update-env-vars SENDPULSE_USER_ID=,SENDPULSE_SECRET=,SENDPULSE_MAILING_LIST_ID=,NEXT_PUBLIC_APP_URL=https://vexa.ai,ADMIN_API_URL=https://gateway.dev.vexa.ai,NEXTAUTH_SECRET==,NEXTAUTH_URL=https://vexa.ai,ADMIN_API_TOKEN=\'&\',NEXT_PUBLIC_GA_MEASUREMENT_ID=,NEXT_PUBLIC_UMAMI_WEBSITE_ID= \
+        --update-env-vars SENDPULSE_USER_ID=,SENDPULSE_SECRET=,SENDPULSE_MAILING_LIST_ID=,NEXT_PUBLIC_APP_URL=https://vexa.ai,ADMIN_API_URL=https://gateway.dev.vexa.ai/,NEXTAUTH_SECRET==,NEXTAUTH_URL=https://vexa.ai,ADMIN_API_TOKEN=\'&\',NEXT_PUBLIC_GA_MEASUREMENT_ID=,NEXT_PUBLIC_UMAMI_WEBSITE_ID= \
         --project=project
     ```
     *   Replace `KEY1=new_value1,KEY2=new_value2` with the actual variables you want to set or update.
