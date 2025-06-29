@@ -1,237 +1,494 @@
+"use client"
+
+import { useSession } from "next-auth/react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Copy, Key, Plus, RefreshCw } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
+import { toast } from "@/components/ui/use-toast"
+import { Toaster } from "@/components/ui/toaster"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Bot, Calendar, AlertCircle, Key, ArrowRight, Settings, Loader2 } from "lucide-react"
+
+interface UserData {
+  id: number
+  email: string
+  name?: string
+  max_concurrent_bots: number
+  data?: {
+    subscription_end_date?: string
+    subscription_status?: string
+    subscription_tier?: string
+    stripe_subscription_id?: string
+  }
+}
 
 export default function DashboardPage() {
+  const { data: session, status: sessionStatus } = useSession()
+  const [userData, setUserData] = useState<UserData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [newBotCount, setNewBotCount] = useState([25]) // Default to 25 bots
+  const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false)
+  const [isCancelingSubscription, setIsCancelingSubscription] = useState(false)
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (sessionStatus !== "authenticated" || !session?.user?.id) {
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        const response = await fetch(`/api/admin/tokens?userId=${session.user.id}`)
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          throw new Error(errorData.detail || errorData.error || 'Failed to fetch user data')
+        }
+        
+        const data = await response.json()
+        setUserData(data)
+        // Initialize bot count slider with current value
+        setNewBotCount([data.max_concurrent_bots || 1])
+      } catch (err) {
+        console.error("Error fetching user data:", err)
+        setError(err instanceof Error ? err.message : 'Failed to load user data')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchUserData()
+  }, [sessionStatus, session])
+
+  // Pricing calculation functions (same as in DynamicPricingCard)
+  const calculatePrice = (bots: number): number => {
+    const perBotCost = 10 + 14 * Math.exp(-bots / 100);
+    let basePrice = Math.round(bots * Math.max(10, perBotCost));
+    basePrice = Math.max(120, basePrice);
+    
+    if (bots >= 180) {
+      basePrice = Math.round(basePrice * 0.85);
+    } else if (bots >= 30) {
+      basePrice = Math.round(basePrice * 0.90);
+    } else if (bots >= 5) {
+      basePrice = Math.round(basePrice * 0.95);
+    }
+    
+    return Math.max(120, Math.max(bots * 10, basePrice));
+  }
+
+  const getPricingTier = (bots: number): 'startup' | 'growth' | 'scale' => {
+    if (bots < 30) return 'startup'
+    if (bots < 180) return 'growth'
+    return 'scale'
+  }
+
+  const handleUpdateSubscription = async () => {
+    if (!userData?.data?.stripe_subscription_id) {
+      toast({
+        title: "Error",
+        description: "No active subscription found",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsUpdatingSubscription(true)
+    try {
+      const response = await fetch('/api/stripe/modify-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          subscriptionId: userData.data.stripe_subscription_id,
+          newBotCount: newBotCount[0],
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update subscription')
+      }
+
+      toast({
+        title: "Subscription Updated",
+        description: `Your subscription has been updated to ${newBotCount[0]} bots`,
+      })
+
+      // Refresh user data
+      window.location.reload()
+    } catch (error) {
+      console.error('Error updating subscription:', error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to update subscription',
+        variant: "destructive",
+      })
+    } finally {
+      setIsUpdatingSubscription(false)
+    }
+  }
+
+  const handleCancelSubscription = async () => {
+    if (!userData?.data?.stripe_subscription_id) {
+      toast({
+        title: "Error",
+        description: "No active subscription found",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsCancelingSubscription(true)
+    try {
+      const response = await fetch('/api/stripe/cancel-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          subscriptionId: userData.data.stripe_subscription_id,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to cancel subscription')
+      }
+
+      toast({
+        title: "Subscription Canceled",
+        description: data.message || "Your subscription will be canceled at the end of the current billing period",
+      })
+
+      // Refresh user data
+      setTimeout(() => window.location.reload(), 2000)
+    } catch (error) {
+      console.error('Error canceling subscription:', error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to cancel subscription',
+        variant: "destructive",
+      })
+    } finally {
+      setIsCancelingSubscription(false)
+    }
+  }
+
+  const formatPaymentDueDate = (dateString?: string) => {
+    if (!dateString) return "No active subscription"
+    
+    try {
+      const date = new Date(dateString)
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    } catch {
+      return "Invalid date"
+    }
+  }
+
+  const getSubscriptionStatus = (status?: string) => {
+    switch (status) {
+      case 'active':
+        return <Badge className="bg-green-100 text-green-800">Active</Badge>
+      case 'canceled':
+        return <Badge variant="destructive">Canceled</Badge>
+      case 'past_due':
+        return <Badge variant="destructive">Past Due</Badge>
+      default:
+        return <Badge variant="secondary">Free Plan</Badge>
+    }
+  }
+
+  if (sessionStatus === "loading" || isLoading) {
+    return (
+      <div className="container py-10">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold tracking-tight mb-2">Dashboard</h1>
+          <p className="text-muted-foreground">Your current plan and usage</p>
+        </div>
+        
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-4 w-48" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-16 w-24" />
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-4 w-48" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-16 w-48" />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
+  if (sessionStatus !== "authenticated") {
+    return (
+      <div className="container py-10">
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Please sign in to view your dashboard.
+          </AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="container py-10">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold tracking-tight mb-2">Dashboard</h1>
+          <p className="text-muted-foreground">Your current plan and usage</p>
+        </div>
+        
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {error}
+          </AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
+
   return (
     <div className="container py-10">
+      <Toaster />
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">API Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">Dashboard</h1>
         <p className="text-muted-foreground">
-          Manage your API keys and view usage statistics
+          Welcome back, {userData?.name || userData?.email || 'User'}
         </p>
             </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Current Bot Limit */}
                 <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>API Keys</span>
-              <Button size="sm" className="gap-1">
-                <Plus className="h-4 w-4" />
-                Create Key
-                      </Button>
-            </CardTitle>
-            <CardDescription>
-              Manage keys used to authenticate API requests
-            </CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Current Bot Limit</CardTitle>
+            <Bot className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Key</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell className="font-medium">Production</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <code className="rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
-                        vx_prod_***********************
-                      </code>
-                      <Button size="icon" variant="ghost" className="h-8 w-8">
-                        <Copy className="h-4 w-4" />
-                      </Button>
+            <div className="text-2xl font-bold">
+              {userData?.max_concurrent_bots || 1} bot{(userData?.max_concurrent_bots || 1) > 1 ? 's' : ''}
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-50">Active</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button size="sm" variant="outline" className="h-8 gap-1">
-                      <RefreshCw className="h-3 w-3" />
-                      Rotate
-                      </Button>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Development</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <code className="rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
-                        vx_dev_************************
-                      </code>
-                      <Button size="icon" variant="ghost" className="h-8 w-8">
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-50">Active</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button size="sm" variant="outline" className="h-8 gap-1">
-                      <RefreshCw className="h-3 w-3" />
-                      Rotate
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+            <p className="text-xs text-muted-foreground">
+              {userData?.data?.subscription_tier ? 
+                `${userData.data.subscription_tier.charAt(0).toUpperCase() + userData.data.subscription_tier.slice(1)} Plan` : 
+                'Free Plan'
+              }
+            </p>
                   </CardContent>
-          <CardFooter className="text-sm text-muted-foreground">
-            API keys should be kept secure and never shared publicly.
-                  </CardFooter>
                 </Card>
 
+        {/* Next Payment Due */}
         <Card>
-          <CardHeader>
-            <CardTitle>API Usage</CardTitle>
-            <CardDescription>
-              Monitor your API requests and usage
-            </CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Subscription Status</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="space-y-8">
               <div className="space-y-2">
-                <div className="text-sm font-medium">Current Billing Period</div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="flex flex-col">
-                    <span className="text-2xl font-bold">2,435</span>
-                    <span className="text-sm text-muted-foreground">API Calls</span>
+              <div className="flex items-center gap-2">
+                {getSubscriptionStatus(userData?.data?.subscription_status)}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {userData?.data?.subscription_end_date ? (
+                  <>
+                    Next payment due: {formatPaymentDueDate(userData.data.subscription_end_date)}
+                  </>
+                ) : (
+                  "No active subscription"
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* API Keys Quick Access */}
+        <Card className="lg:col-span-1 md:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">API Keys</CardTitle>
+            <Key className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Manage your API keys for bot integration
+              </p>
+              <Link href="/dashboard/api-keys">
+                <Button className="w-full" variant="outline">
+                  <Key className="h-4 w-4 mr-2" />
+                  Manage API Keys
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Subscription Management Section */}
+      {userData?.data?.subscription_status === 'active' && userData?.data?.stripe_subscription_id && (
+        <div className="mt-8 space-y-6">
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Subscription Management</h2>
+            <p className="text-muted-foreground text-sm">
+              Manage your subscription and bot limits
+            </p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Change Bot Limit
+              </CardTitle>
+              <CardDescription>
+                Adjust your concurrent bot limit. Changes are prorated and take effect immediately.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <Label htmlFor="bot-count-slider">
+                  Bot Count: {newBotCount[0]} bots
+                </Label>
+                <Slider
+                  id="bot-count-slider"
+                  min={5}
+                  max={200}
+                  step={1}
+                  value={newBotCount}
+                  onValueChange={setNewBotCount}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>5 bots</span>
+                  <span>200 bots</span>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-2xl font-bold">42</span>
-                    <span className="text-sm text-muted-foreground">Bots Created</span>
+                <div className="p-4 bg-muted rounded-lg">
+                  <div className="text-sm font-medium">
+                    New Price: ${calculatePrice(newBotCount[0])}/month
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-2xl font-bold">16h</span>
-                    <span className="text-sm text-muted-foreground">Recording Time</span>
+                  <div className="text-xs text-muted-foreground">
+                    {getPricingTier(newBotCount[0]).charAt(0).toUpperCase() + getPricingTier(newBotCount[0]).slice(1)} tier
                   </div>
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <div className="text-sm font-medium">Plan Limits</div>
-                <div className="space-y-2">
-                    <div className="space-y-1">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>API Calls</span>
-                      <span>2,435 / 10,000</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full bg-primary" style={{ width: "24%" }}></div>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Recording Hours</span>
-                      <span>16 / 50</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full bg-primary" style={{ width: "32%" }}></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button 
+                  onClick={handleUpdateSubscription}
+                  disabled={isUpdatingSubscription || newBotCount[0] === userData?.max_concurrent_bots}
+                  className="flex-1"
+                >
+                  {isUpdatingSubscription ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    'Update Subscription'
+                  )}
+                </Button>
+                
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="w-full sm:w-auto">
+                      Cancel Subscription
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Cancel Subscription</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to cancel your subscription? You'll continue to have access until the end of your current billing period ({formatPaymentDueDate(userData?.data?.subscription_end_date)}).
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Keep Subscription</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleCancelSubscription}
+                        disabled={isCancelingSubscription}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        {isCancelingSubscription ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Canceling...
+                          </>
+                        ) : (
+                          'Yes, Cancel Subscription'
+                        )}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
                   </div>
                 </CardContent>
-                <CardFooter>
-            <Link href="/public-beta">
-              <Button variant="outline">Upgrade Plan</Button>
-            </Link>
-                </CardFooter>
               </Card>
       </div>
+      )}
 
-      <div className="mt-8">
+      {/* Subscription Info */}
+      {userData?.data?.stripe_subscription_id && (
+        <div className="mt-6">
         <Card>
           <CardHeader>
-            <CardTitle>Recent API Activity</CardTitle>
-            <CardDescription>
-              View your recent API requests and responses
-            </CardDescription>
+              <CardTitle className="text-lg">Subscription Details</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Timestamp</TableHead>
-                  <TableHead>Method</TableHead>
-                  <TableHead>Endpoint</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>IP Address</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell className="font-medium">Today at 14:32</TableCell>
-                  <TableCell>
-                    <Badge className="bg-blue-50 text-blue-700 hover:bg-blue-50">GET</Badge>
-                  </TableCell>
-                  <TableCell>/v1/bots</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-50">200</Badge>
-                  </TableCell>
-                  <TableCell>192.168.1.1</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Today at 14:30</TableCell>
-                  <TableCell>
-                    <Badge className="bg-green-50 text-green-700 hover:bg-green-50">POST</Badge>
-                  </TableCell>
-                  <TableCell>/v1/bots</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-50">201</Badge>
-                  </TableCell>
-                  <TableCell>192.168.1.1</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Today at 13:25</TableCell>
-                  <TableCell>
-                    <Badge className="bg-red-50 text-red-700 hover:bg-red-50">DELETE</Badge>
-                  </TableCell>
-                  <TableCell>/v1/bots/bot_123</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-50">204</Badge>
-                  </TableCell>
-                  <TableCell>192.168.1.1</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+            <CardContent className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Subscription ID:</span>
+                <span className="text-sm font-mono">{userData.data.stripe_subscription_id}</span>
+              </div>
+              {userData.data.subscription_tier && (
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Plan:</span>
+                  <span className="text-sm">{userData.data.subscription_tier}</span>
+                </div>
+              )}
           </CardContent>
-          <CardFooter>
-            <Link href="/dashboard/logs">
-              <Button variant="link" className="gap-1">
-                View all activity logs
-                <Key className="h-4 w-4" />
-              </Button>
-            </Link>
-          </CardFooter>
         </Card>
         </div>
+      )}
     </div>
   )
 }

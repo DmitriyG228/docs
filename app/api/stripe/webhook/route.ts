@@ -20,9 +20,13 @@ export async function POST(request: NextRequest) {
       process.env.STRIPE_WEBHOOK_SECRET
     )
 
+    console.log(`[Webhook] DEBUG: Received event type: ${event.type}`)
+    console.log(`[Webhook] DEBUG: Event data:`, JSON.stringify(event.data, null, 2))
+
     // Handle the event
     switch (event.type) {
       case 'checkout.session.completed':
+        console.log(`[Webhook] DEBUG: Processing checkout.session.completed`)
         await handleSuccessfulPayment(event.data.object as Stripe.Checkout.Session)
         break
       case 'customer.subscription.updated':
@@ -46,12 +50,13 @@ export async function POST(request: NextRequest) {
 }
 
 // --- ADMIN API INTEGRATION ---
-async function updateUserInAdminApi(subscriptionData: {
+export async function updateUserInAdminApi(subscriptionData: {
   email: string
   botCount: number
   subscriptionId?: string
   tier?: string
   status: string
+  nextPaymentDate?: string | null
 }) {
   const adminApiUrl = process.env.ADMIN_API_URL
   const adminApiToken = process.env.ADMIN_API_TOKEN
@@ -82,16 +87,13 @@ async function updateUserInAdminApi(subscriptionData: {
   console.log(`[Webhook] Found/created user: ${user.email} (ID: ${user.id})`)
 
   // 2. Update the user's bot count and subscription data
-  const subscriptionEndDate = new Date()
-  subscriptionEndDate.setDate(subscriptionEndDate.getDate() + 30)
-
   const updatePayload = {
     max_concurrent_bots: subscriptionData.botCount,
     data: {
       stripe_subscription_id: subscriptionData.subscriptionId,
       subscription_tier: subscriptionData.tier,
       subscription_status: subscriptionData.status,
-      subscription_end_date: subscriptionData.status === 'active' ? subscriptionEndDate.toISOString() : null,
+      subscription_end_date: subscriptionData.nextPaymentDate,
       updated_by_webhook: new Date().toISOString(),
     },
   }
@@ -116,11 +118,24 @@ async function updateUserInAdminApi(subscriptionData: {
 
 // --- EVENT HANDLERS ---
 async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
+  console.log(`[Webhook] DEBUG: Full session object:`, JSON.stringify(session, null, 2))
+  
   const { userEmail, botCount, tier } = session.metadata || {}
+  
+  console.log(`[Webhook] DEBUG: Extracted metadata - userEmail: ${userEmail}, botCount: ${botCount}, tier: ${tier}`)
 
   if (!userEmail || !botCount) {
     console.error('[Webhook] Missing userEmail or botCount in session metadata.')
+    console.error('[Webhook] DEBUG: Available metadata:', session.metadata)
     return
+  }
+
+  // Retrieve the subscription to get next payment date
+  let nextPaymentDate: string | null = null
+  if (session.subscription) {
+    const subscriptionRes = await stripe.subscriptions.retrieve(session.subscription as string)
+    const currentPeriodEnd = (subscriptionRes as any).current_period_end as number | undefined
+    nextPaymentDate = currentPeriodEnd ? new Date(currentPeriodEnd * 1000).toISOString() : null
   }
 
   console.log(`[Webhook] Handling successful payment for ${userEmail}.`)
@@ -130,6 +145,7 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
     subscriptionId: session.subscription as string,
     tier,
     status: 'active',
+    nextPaymentDate,
   })
 }
 
@@ -140,6 +156,10 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const item = subscription.items.data[0]
   if (!item) return
 
+  const nextPaymentDate = (subscription as any).current_period_end
+    ? new Date((subscription as any).current_period_end * 1000).toISOString()
+    : null
+
   console.log(`[Webhook] Handling subscription update for ${customer.email}.`)
   await updateUserInAdminApi({
     email: customer.email,
@@ -147,6 +167,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     subscriptionId: subscription.id,
     tier: item.price.nickname || undefined,
     status: subscription.status,
+    nextPaymentDate,
   })
 }
 
@@ -160,6 +181,7 @@ async function handleSubscriptionCanceled(subscription: Stripe.Subscription) {
     botCount: 0, // Set bot count to 0 on cancellation
     subscriptionId: subscription.id,
     status: 'canceled',
+    nextPaymentDate: null,
   })
 }
 

@@ -1,0 +1,1227 @@
+
+> my-v0-project@0.1.0 dev
+> npm run setup-docs && NEXTAUTH_URL='http://localhost:3001' next dev -p 3001
+
+
+> my-v0-project@0.1.0 setup-docs
+> node scripts/setup-docs.js
+
+Root docs directory does not exist.
+Docs setup complete!
+   ▲ Next.js 15.1.0
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.1.4:3001
+   - Environments: .env
+   - Experiments (use with caution):
+     · webpackBuildWorker
+     · parallelServerCompiles
+     · parallelServerBuildTraces
+
+ ✓ Starting...
+ ✓ Ready in 6.7s
+ ○ Compiling / ...
+ ✓ Compiled / in 5.9s (1231 modules)
+ GET / 200 in 6342ms
+ ✓ Compiled in 606ms (490 modules)
+ ✓ Compiled in 187ms (490 modules)
+ ✓ Compiled in 174ms (490 modules)
+ ✓ Compiled in 175ms (490 modules)
+ ✓ Compiled in 179ms (490 modules)
+ ✓ Compiled in 167ms (490 modules)
+ ✓ Compiled in 170ms (490 modules)
+ ✓ Compiled in 169ms (490 modules)
+ ✓ Compiled in 165ms (490 modules)
+ ✓ Compiled in 167ms (490 modules)
+ ✓ Compiled in 165ms (490 modules)
+ ✓ Compiled in 161ms (490 modules)
+ ✓ Compiled in 167ms (490 modules)
+ ✓ Compiled in 164ms (490 modules)
+ ✓ Compiled in 162ms (490 modules)
+ ✓ Compiled in 163ms (490 modules)
+ ✓ Compiled in 164ms (490 modules)
+ ✓ Compiled in 163ms (490 modules)
+ ✓ Compiled in 165ms (490 modules)
+ ✓ Compiled in 210ms (490 modules)
+ ✓ Compiled in 164ms (490 modules)
+ ✓ Compiled in 161ms (490 modules)
+ ✓ Compiled in 164ms (490 modules)
+ ✓ Compiled in 158ms (490 modules)
+ ✓ Compiled in 160ms (490 modules)
+ ✓ Compiled in 159ms (490 modules)
+ ✓ Compiled in 158ms (490 modules)
+ ✓ Compiled in 159ms (490 modules)
+ ✓ Compiled in 155ms (490 modules)
+ ✓ Compiled in 158ms (490 modules)
+ ✓ Compiled in 159ms (490 modules)
+ ✓ Compiled in 160ms (490 modules)
+ ✓ Compiled in 155ms (490 modules)
+ ✓ Compiled in 159ms (490 modules)
+ ✓ Compiled in 155ms (490 modules)
+ ✓ Compiled in 156ms (490 modules)
+ ✓ Compiled in 158ms (490 modules)
+ ✓ Compiled in 155ms (490 modules)
+ ✓ Compiled in 155ms (490 modules)
+ ✓ Compiled in 160ms (490 modules)
+ ✓ Compiled in 161ms (490 modules)
+ ✓ Compiled in 188ms (490 modules)
+ ✓ Compiled in 162ms (490 modules)
+ ✓ Compiled in 165ms (490 modules)
+ ✓ Compiled in 161ms (490 modules)
+ ✓ Compiled in 159ms (490 modules)
+ ✓ Compiled in 163ms (490 modules)
+ ✓ Compiled in 156ms (490 modules)
+ ✓ Compiled in 157ms (490 modules)
+ ✓ Compiled in 163ms (490 modules)
+ ✓ Compiled in 157ms (490 modules)
+ ✓ Compiled in 159ms (490 modules)
+ ✓ Compiled in 151ms (490 modules)
+ ✓ Compiled in 153ms (490 modules)
+ ✓ Compiled in 159ms (490 modules)
+ ✓ Compiled in 155ms (490 modules)
+ ✓ Compiled in 156ms (490 modules)
+ ✓ Compiled in 154ms (490 modules)
+ ✓ Compiled in 159ms (490 modules)
+ ✓ Compiled in 159ms (490 modules)
+ ✓ Compiled in 157ms (490 modules)
+ ✓ Compiled in 157ms (490 modules)
+ ✓ Compiled in 155ms (490 modules)
+ ✓ Compiled in 190ms (490 modules)
+ ✓ Compiled in 164ms (490 modules)
+ ✓ Compiled in 158ms (490 modules)
+ ✓ Compiled in 157ms (490 modules)
+ ✓ Compiled in 157ms (490 modules)
+ ✓ Compiled in 157ms (490 modules)
+ ✓ Compiled in 157ms (490 modules)
+ ✓ Compiled in 160ms (490 modules)
+ ✓ Compiled in 153ms (490 modules)
+ ✓ Compiled in 156ms (490 modules)
+ ✓ Compiled in 164ms (490 modules)
+ ✓ Compiled in 160ms (490 modules)
+ ✓ Compiled in 152ms (490 modules)
+ ✓ Compiled in 155ms (490 modules)
+ ✓ Compiled in 156ms (490 modules)
+ ✓ Compiled in 159ms (490 modules)
+ ✓ Compiled in 153ms (490 modules)
+ ✓ Compiled in 165ms (490 modules)
+ ✓ Compiled in 155ms (490 modules)
+ ✓ Compiled in 150ms (490 modules)
+ ✓ Compiled in 154ms (490 modules)
+ ✓ Compiled in 155ms (490 modules)
+ ✓ Compiled in 193ms (490 modules)
+ ✓ Compiled in 168ms (490 modules)
+ ✓ Compiled in 160ms (490 modules)
+ ✓ Compiled in 157ms (490 modules)
+ ✓ Compiled in 157ms (490 modules)
+ ✓ Compiled in 159ms (490 modules)
+ ✓ Compiled in 156ms (490 modules)
+ ✓ Compiled in 160ms (490 modules)
+ ✓ Compiled in 156ms (490 modules)
+ ✓ Compiled in 157ms (490 modules)
+ ✓ Compiled in 158ms (490 modules)
+ ✓ Compiled in 154ms (490 modules)
+ ✓ Compiled in 156ms (490 modules)
+ ✓ Compiled in 154ms (490 modules)
+ ✓ Compiled in 157ms (490 modules)
+ ✓ Compiled in 157ms (490 modules)
+ ✓ Compiled in 154ms (490 modules)
+ ✓ Compiled in 158ms (490 modules)
+ ✓ Compiled in 155ms (490 modules)
+ ✓ Compiled in 154ms (490 modules)
+ ✓ Compiled in 156ms (490 modules)
+ ✓ Compiled in 159ms (490 modules)
+ ✓ Compiled in 202ms (490 modules)
+ ✓ Compiled in 166ms (490 modules)
+ ✓ Compiled in 170ms (490 modules)
+ ✓ Compiled in 160ms (490 modules)
+ ✓ Compiled in 156ms (490 modules)
+ ✓ Compiled in 160ms (490 modules)
+ ✓ Compiled in 158ms (490 modules)
+ ✓ Compiled in 161ms (490 modules)
+ ✓ Compiled in 154ms (490 modules)
+ ✓ Compiled in 158ms (490 modules)
+ ✓ Compiled in 161ms (490 modules)
+ ✓ Compiled in 159ms (490 modules)
+ ✓ Compiled in 159ms (490 modules)
+ ✓ Compiled in 155ms (490 modules)
+ ✓ Compiled in 155ms (490 modules)
+ ✓ Compiled in 161ms (490 modules)
+ ✓ Compiled in 162ms (490 modules)
+ ✓ Compiled in 161ms (490 modules)
+ ✓ Compiled in 158ms (490 modules)
+ ✓ Compiled in 159ms (490 modules)
+ ✓ Compiled in 158ms (490 modules)
+ ✓ Compiled in 160ms (490 modules)
+ ✓ Compiled in 199ms (490 modules)
+ ✓ Compiled in 165ms (490 modules)
+ ✓ Compiled in 169ms (490 modules)
+ ✓ Compiled in 161ms (490 modules)
+ ✓ Compiled in 163ms (490 modules)
+ ✓ Compiled in 167ms (490 modules)
+ ✓ Compiled in 156ms (490 modules)
+ ✓ Compiled in 166ms (490 modules)
+ ✓ Compiled in 157ms (490 modules)
+ ✓ Compiled in 158ms (490 modules)
+ ✓ Compiled in 154ms (490 modules)
+ ✓ Compiled in 157ms (490 modules)
+ ○ Compiling /api/stripe/webhook ...
+ ✓ Compiled /api/stripe/webhook in 836ms (1444 modules)
+[Webhook] DEBUG: Received event type: price.created
+[Webhook] DEBUG: Event data: {
+  "object": {
+    "id": "price_1RfP7OFKEqzvZq6xzgIBSmVD",
+    "object": "price",
+    "active": true,
+    "billing_scheme": "per_unit",
+    "created": 1751218458,
+    "currency": "usd",
+    "custom_unit_amount": null,
+    "livemode": false,
+    "lookup_key": null,
+    "metadata": {},
+    "nickname": null,
+    "product": "prod_SaaHsbcAksxrcm",
+    "recurring": null,
+    "tax_behavior": "unspecified",
+    "tiers_mode": null,
+    "transform_quantity": null,
+    "type": "one_time",
+    "unit_amount": 1500,
+    "unit_amount_decimal": "1500"
+  }
+}
+Unhandled event type: price.created
+[Webhook] DEBUG: Received event type: product.created
+[Webhook] DEBUG: Event data: {
+  "object": {
+    "id": "prod_SaaHsbcAksxrcm",
+    "object": "product",
+    "active": true,
+    "attributes": [],
+    "created": 1751218458,
+    "default_price": null,
+    "description": "(created by Stripe CLI)",
+    "images": [],
+    "livemode": false,
+    "marketing_features": [],
+    "metadata": {},
+    "name": "myproduct",
+    "package_dimensions": null,
+    "shippable": null,
+    "statement_descriptor": null,
+    "tax_code": null,
+    "type": "service",
+    "unit_label": null,
+    "updated": 1751218458,
+    "url": null
+  }
+}
+Unhandled event type: product.created
+ POST /api/stripe/webhook 200 in 473ms
+ POST /api/stripe/webhook 200 in 830ms
+ ✓ Compiled in 284ms (491 modules)
+ ✓ Compiled in 164ms (491 modules)
+ ✓ Compiled in 163ms (491 modules)
+ ✓ Compiled in 161ms (491 modules)
+ ✓ Compiled in 161ms (491 modules)
+ ✓ Compiled in 163ms (491 modules)
+ ✓ Compiled in 165ms (491 modules)
+ ✓ Compiled in 153ms (491 modules)
+ ✓ Compiled in 155ms (491 modules)
+ ✓ Compiled in 159ms (491 modules)
+ ✓ Compiled in 161ms (491 modules)
+ ✓ Compiled in 157ms (491 modules)
+[Webhook] DEBUG: Received event type: charge.succeeded
+[Webhook] DEBUG: Event data: {
+  "object": {
+    "id": "ch_3RfP7QFKEqzvZq6x0Bf9yfmD",
+    "object": "charge",
+    "amount": 3000,
+    "amount_captured": 3000,
+    "amount_refunded": 0,
+    "application": null,
+    "application_fee": null,
+    "application_fee_amount": null,
+    "balance_transaction": null,
+    "billing_details": {
+      "address": {
+        "city": "South San Francisco",
+        "country": "US",
+        "line1": "354 Oyster Point Blvd",
+        "line2": null,
+        "postal_code": "94080",
+        "state": "CA"
+      },
+      "email": "stripe@example.com",
+      "name": "Jenny Rosen",
+      "phone": null,
+      "tax_id": null
+    },
+    "calculated_statement_descriptor": "VEXA.AI",
+    "captured": true,
+    "created": 1751218460,
+    "currency": "usd",
+    "customer": null,
+    "description": null,
+    "destination": null,
+    "dispute": null,
+    "disputed": false,
+    "failure_balance_transaction": null,
+    "failure_code": null,
+    "failure_message": null,
+    "fraud_details": {},
+    "invoice": null,
+    "livemode": false,
+    "metadata": {},
+    "on_behalf_of": null,
+    "order": null,
+    "outcome": {
+      "advice_code": null,
+      "network_advice_code": null,
+      "network_decline_code": null,
+      "network_status": "approved_by_network",
+      "reason": null,
+      "risk_level": "normal",
+      "risk_score": 39,
+      "seller_message": "Payment complete.",
+      "type": "authorized"
+    },
+    "paid": true,
+    "payment_intent": "pi_3RfP7QFKEqzvZq6x0kbcMgux",
+    "payment_method": "pm_1RfP7QFKEqzvZq6xn3Av7l5r",
+    "payment_method_details": {
+      "card": {
+        "amount_authorized": 3000,
+        "authorization_code": "179144",
+        "brand": "visa",
+        "checks": {
+          "address_line1_check": "pass",
+          "address_postal_code_check": "pass",
+          "cvc_check": "pass"
+        },
+        "country": "US",
+        "exp_month": 6,
+        "exp_year": 2026,
+        "extended_authorization": {
+          "status": "disabled"
+        },
+        "fingerprint": "9a8b6jfiX2GTWDq9",
+        "funding": "credit",
+        "incremental_authorization": {
+          "status": "unavailable"
+        },
+        "installments": null,
+        "last4": "4242",
+        "mandate": null,
+        "multicapture": {
+          "status": "unavailable"
+        },
+        "network": "visa",
+        "network_token": {
+          "used": false
+        },
+        "network_transaction_id": "579756985410610",
+        "overcapture": {
+          "maximum_amount_capturable": 3000,
+          "status": "unavailable"
+        },
+        "regulated_status": "unregulated",
+        "three_d_secure": null,
+        "wallet": null
+      },
+      "type": "card"
+    },
+    "radar_options": {},
+    "receipt_email": null,
+    "receipt_number": null,
+    "receipt_url": "https://pay.stripe.com/receipts/payment/CAcaFwoVYWNjdF8xUUFYdk1GS0VxenZacTZ4KJ3yhcMGMgYcvyuzDjM6LBZwtYJ9vlWfL3ncJpWSk_UMxLHYpXdWu5eMru8DVM8JAa8Scm4cUuKGgTGo",
+    "refunded": false,
+    "review": null,
+    "shipping": {
+      "address": {
+        "city": "San Francisco",
+        "country": "US",
+        "line1": "510 Townsend St",
+        "line2": null,
+        "postal_code": "94103",
+        "state": "CA"
+      },
+      "carrier": null,
+      "name": "Jenny Rosen",
+      "phone": null,
+      "tracking_number": null
+    },
+    "source": null,
+    "source_transfer": null,
+    "statement_descriptor": null,
+    "statement_descriptor_suffix": null,
+    "status": "succeeded",
+    "transfer_data": null,
+    "transfer_group": null
+  }
+}
+Unhandled event type: charge.succeeded
+ POST /api/stripe/webhook 200 in 42ms
+ ✓ Compiled in 166ms (491 modules)
+[Webhook] DEBUG: Received event type: payment_intent.succeeded
+[Webhook] DEBUG: Event data: {
+  "object": {
+    "id": "pi_3RfP7QFKEqzvZq6x0kbcMgux",
+    "object": "payment_intent",
+    "amount": 3000,
+    "amount_capturable": 0,
+    "amount_details": {
+      "tip": {}
+    },
+    "amount_received": 3000,
+    "application": null,
+    "application_fee_amount": null,
+    "automatic_payment_methods": null,
+    "canceled_at": null,
+    "cancellation_reason": null,
+    "capture_method": "automatic_async",
+    "client_secret": "pi_3RfP7QFKEqzvZq6x0kbcMgux_secret_3ozzUoiMAdPzM0qEhgZAwjVth",
+    "confirmation_method": "automatic",
+    "created": 1751218460,
+    "currency": "usd",
+    "customer": null,
+    "description": null,
+    "invoice": null,
+    "last_payment_error": null,
+    "latest_charge": "ch_3RfP7QFKEqzvZq6x0Bf9yfmD",
+    "livemode": false,
+    "metadata": {},
+    "next_action": null,
+    "on_behalf_of": null,
+    "payment_method": "pm_1RfP7QFKEqzvZq6xn3Av7l5r",
+    "payment_method_configuration_details": null,
+    "payment_method_options": {
+      "card": {
+        "installments": null,
+        "mandate_options": null,
+        "network": null,
+        "request_three_d_secure": "automatic"
+      }
+    },
+    "payment_method_types": [
+      "card"
+    ],
+    "processing": null,
+    "receipt_email": null,
+    "review": null,
+    "setup_future_usage": null,
+    "shipping": {
+      "address": {
+        "city": "San Francisco",
+        "country": "US",
+        "line1": "510 Townsend St",
+        "line2": null,
+        "postal_code": "94103",
+        "state": "CA"
+      },
+      "carrier": null,
+      "name": "Jenny Rosen",
+      "phone": null,
+      "tracking_number": null
+    },
+    "source": null,
+    "statement_descriptor": null,
+    "statement_descriptor_suffix": null,
+    "status": "succeeded",
+    "transfer_data": null,
+    "transfer_group": null
+  }
+}
+Unhandled event type: payment_intent.succeeded
+ POST /api/stripe/webhook 200 in 8ms
+[Webhook] DEBUG: Received event type: checkout.session.completed
+[Webhook] DEBUG: Event data: {
+  "object": {
+    "id": "cs_test_a1dvw4us462HS10TMTR8aCFgmE5ZKwdE5Hyyzdqn5QnaLKsADLyNo39icp",
+    "object": "checkout.session",
+    "adaptive_pricing": {
+      "enabled": true
+    },
+    "after_expiration": null,
+    "allow_promotion_codes": null,
+    "amount_subtotal": 3000,
+    "amount_total": 3000,
+    "automatic_tax": {
+      "enabled": false,
+      "liability": null,
+      "provider": null,
+      "status": null
+    },
+    "billing_address_collection": null,
+    "cancel_url": "https://httpbin.org/post",
+    "client_reference_id": null,
+    "client_secret": null,
+    "collected_information": null,
+    "consent": null,
+    "consent_collection": null,
+    "created": 1751218459,
+    "currency": "usd",
+    "currency_conversion": null,
+    "custom_fields": [],
+    "custom_text": {
+      "after_submit": null,
+      "shipping_address": null,
+      "submit": null,
+      "terms_of_service_acceptance": null
+    },
+    "customer": null,
+    "customer_creation": "if_required",
+    "customer_details": {
+      "address": {
+        "city": "South San Francisco",
+        "country": "US",
+        "line1": "354 Oyster Point Blvd",
+        "line2": null,
+        "postal_code": "94080",
+        "state": "CA"
+      },
+      "email": "stripe@example.com",
+      "name": "Jenny Rosen",
+      "phone": null,
+      "tax_exempt": "none",
+      "tax_ids": []
+    },
+    "customer_email": null,
+    "discounts": [],
+    "expires_at": 1751304859,
+    "invoice": null,
+    "invoice_creation": {
+      "enabled": false,
+      "invoice_data": {
+        "account_tax_ids": null,
+        "custom_fields": null,
+        "description": null,
+        "footer": null,
+        "issuer": null,
+        "metadata": {},
+        "rendering_options": null
+      }
+    },
+    "livemode": false,
+    "locale": null,
+    "metadata": {},
+    "mode": "payment",
+    "payment_intent": "pi_3RfP7QFKEqzvZq6x0kbcMgux",
+    "payment_link": null,
+    "payment_method_collection": "if_required",
+    "payment_method_configuration_details": {
+      "id": "pmc_1RetkCFKEqzvZq6x9YWdPAIS",
+      "parent": null
+    },
+    "payment_method_options": {
+      "card": {
+        "request_three_d_secure": "automatic"
+      }
+    },
+    "payment_method_types": [
+      "card",
+      "klarna",
+      "cashapp",
+      "amazon_pay"
+    ],
+    "payment_status": "paid",
+    "permissions": null,
+    "phone_number_collection": {
+      "enabled": false
+    },
+    "recovered_from": null,
+    "saved_payment_method_options": null,
+    "setup_intent": null,
+    "shipping_address_collection": null,
+    "shipping_cost": null,
+    "shipping_details": null,
+    "shipping_options": [],
+    "status": "complete",
+    "submit_type": null,
+    "subscription": null,
+    "success_url": "https://httpbin.org/post",
+    "total_details": {
+      "amount_discount": 0,
+      "amount_shipping": 0,
+      "amount_tax": 0
+    },
+    "ui_mode": "hosted",
+    "url": null,
+    "wallet_options": null
+  }
+}
+[Webhook] DEBUG: Processing checkout.session.completed
+[Webhook] DEBUG: Full session object: {
+  "id": "cs_test_a1dvw4us462HS10TMTR8aCFgmE5ZKwdE5Hyyzdqn5QnaLKsADLyNo39icp",
+  "object": "checkout.session",
+  "adaptive_pricing": {
+    "enabled": true
+  },
+  "after_expiration": null,
+  "allow_promotion_codes": null,
+  "amount_subtotal": 3000,
+  "amount_total": 3000,
+  "automatic_tax": {
+    "enabled": false,
+    "liability": null,
+    "provider": null,
+    "status": null
+  },
+  "billing_address_collection": null,
+  "cancel_url": "https://httpbin.org/post",
+  "client_reference_id": null,
+  "client_secret": null,
+  "collected_information": null,
+  "consent": null,
+  "consent_collection": null,
+  "created": 1751218459,
+  "currency": "usd",
+  "currency_conversion": null,
+  "custom_fields": [],
+  "custom_text": {
+    "after_submit": null,
+    "shipping_address": null,
+    "submit": null,
+    "terms_of_service_acceptance": null
+  },
+  "customer": null,
+  "customer_creation": "if_required",
+  "customer_details": {
+    "address": {
+      "city": "South San Francisco",
+      "country": "US",
+      "line1": "354 Oyster Point Blvd",
+      "line2": null,
+      "postal_code": "94080",
+      "state": "CA"
+    },
+    "email": "stripe@example.com",
+    "name": "Jenny Rosen",
+    "phone": null,
+    "tax_exempt": "none",
+    "tax_ids": []
+  },
+  "customer_email": null,
+  "discounts": [],
+  "expires_at": 1751304859,
+  "invoice": null,
+  "invoice_creation": {
+    "enabled": false,
+    "invoice_data": {
+      "account_tax_ids": null,
+      "custom_fields": null,
+      "description": null,
+      "footer": null,
+      "issuer": null,
+      "metadata": {},
+      "rendering_options": null
+    }
+  },
+  "livemode": false,
+  "locale": null,
+  "metadata": {},
+  "mode": "payment",
+  "payment_intent": "pi_3RfP7QFKEqzvZq6x0kbcMgux",
+  "payment_link": null,
+  "payment_method_collection": "if_required",
+  "payment_method_configuration_details": {
+    "id": "pmc_1RetkCFKEqzvZq6x9YWdPAIS",
+    "parent": null
+  },
+  "payment_method_options": {
+    "card": {
+      "request_three_d_secure": "automatic"
+    }
+  },
+  "payment_method_types": [
+    "card",
+    "klarna",
+    "cashapp",
+    "amazon_pay"
+  ],
+  "payment_status": "paid",
+  "permissions": null,
+  "phone_number_collection": {
+    "enabled": false
+  },
+  "recovered_from": null,
+  "saved_payment_method_options": null,
+  "setup_intent": null,
+  "shipping_address_collection": null,
+  "shipping_cost": null,
+  "shipping_details": null,
+  "shipping_options": [],
+  "status": "complete",
+  "submit_type": null,
+  "subscription": null,
+  "success_url": "https://httpbin.org/post",
+  "total_details": {
+    "amount_discount": 0,
+    "amount_shipping": 0,
+    "amount_tax": 0
+  },
+  "ui_mode": "hosted",
+  "url": null,
+  "wallet_options": null
+}
+[Webhook] DEBUG: Extracted metadata - userEmail: undefined, botCount: undefined, tier: undefined
+[Webhook] Missing userEmail or botCount in session metadata.
+[Webhook] DEBUG: Available metadata: {}
+ POST /api/stripe/webhook 200 in 43ms
+ ✓ Compiled in 170ms (491 modules)
+[Webhook] DEBUG: Received event type: payment_intent.created
+[Webhook] DEBUG: Event data: {
+  "object": {
+    "id": "pi_3RfP7QFKEqzvZq6x0kbcMgux",
+    "object": "payment_intent",
+    "amount": 3000,
+    "amount_capturable": 0,
+    "amount_details": {
+      "tip": {}
+    },
+    "amount_received": 0,
+    "application": null,
+    "application_fee_amount": null,
+    "automatic_payment_methods": null,
+    "canceled_at": null,
+    "cancellation_reason": null,
+    "capture_method": "automatic_async",
+    "client_secret": "pi_3RfP7QFKEqzvZq6x0kbcMgux_secret_3ozzUoiMAdPzM0qEhgZAwjVth",
+    "confirmation_method": "automatic",
+    "created": 1751218460,
+    "currency": "usd",
+    "customer": null,
+    "description": null,
+    "invoice": null,
+    "last_payment_error": null,
+    "latest_charge": null,
+    "livemode": false,
+    "metadata": {},
+    "next_action": null,
+    "on_behalf_of": null,
+    "payment_method": null,
+    "payment_method_configuration_details": null,
+    "payment_method_options": {
+      "card": {
+        "installments": null,
+        "mandate_options": null,
+        "network": null,
+        "request_three_d_secure": "automatic"
+      }
+    },
+    "payment_method_types": [
+      "card"
+    ],
+    "processing": null,
+    "receipt_email": null,
+    "review": null,
+    "setup_future_usage": null,
+    "shipping": {
+      "address": {
+        "city": "San Francisco",
+        "country": "US",
+        "line1": "510 Townsend St",
+        "line2": null,
+        "postal_code": "94103",
+        "state": "CA"
+      },
+      "carrier": null,
+      "name": "Jenny Rosen",
+      "phone": null,
+      "tracking_number": null
+    },
+    "source": null,
+    "statement_descriptor": null,
+    "statement_descriptor_suffix": null,
+    "status": "requires_payment_method",
+    "transfer_data": null,
+    "transfer_group": null
+  }
+}
+Unhandled event type: payment_intent.created
+ POST /api/stripe/webhook 200 in 13ms
+ ✓ Compiled in 165ms (491 modules)
+ ✓ Compiled in 159ms (491 modules)
+ ✓ Compiled in 171ms (491 modules)
+ ✓ Compiled in 197ms (491 modules)
+ ✓ Compiled in 167ms (491 modules)
+ ✓ Compiled in 166ms (491 modules)
+ ✓ Compiled in 163ms (491 modules)
+ ✓ Compiled in 162ms (491 modules)
+ ✓ Compiled in 159ms (491 modules)
+ ✓ Compiled in 160ms (491 modules)
+ ✓ Compiled in 157ms (491 modules)
+ ✓ Compiled in 290ms (491 modules)
+[NextAuth] Session callback: Added id 63 to session for user dmitrygrankin0@gmail.com
+[Webhook] DEBUG: Received event type: charge.updated
+[Webhook] DEBUG: Event data: {
+  "object": {
+    "id": "ch_3RfP7QFKEqzvZq6x0Bf9yfmD",
+    "object": "charge",
+    "amount": 3000,
+    "amount_captured": 3000,
+    "amount_refunded": 0,
+    "application": null,
+    "application_fee": null,
+    "application_fee_amount": null,
+    "balance_transaction": "txn_3RfP7QFKEqzvZq6x03ujEWG2",
+    "billing_details": {
+      "address": {
+        "city": "South San Francisco",
+        "country": "US",
+        "line1": "354 Oyster Point Blvd",
+        "line2": null,
+        "postal_code": "94080",
+        "state": "CA"
+      },
+      "email": "stripe@example.com",
+      "name": "Jenny Rosen",
+      "phone": null,
+      "tax_id": null
+    },
+    "calculated_statement_descriptor": "VEXA.AI",
+    "captured": true,
+    "created": 1751218460,
+    "currency": "usd",
+    "customer": null,
+    "description": null,
+    "destination": null,
+    "dispute": null,
+    "disputed": false,
+    "failure_balance_transaction": null,
+    "failure_code": null,
+    "failure_message": null,
+    "fraud_details": {},
+    "invoice": null,
+    "livemode": false,
+    "metadata": {},
+    "on_behalf_of": null,
+    "order": null,
+    "outcome": {
+      "advice_code": null,
+      "network_advice_code": null,
+      "network_decline_code": null,
+      "network_status": "approved_by_network",
+      "reason": null,
+      "risk_level": "normal",
+      "risk_score": 39,
+      "seller_message": "Payment complete.",
+      "type": "authorized"
+    },
+    "paid": true,
+    "payment_intent": "pi_3RfP7QFKEqzvZq6x0kbcMgux",
+    "payment_method": "pm_1RfP7QFKEqzvZq6xn3Av7l5r",
+    "payment_method_details": {
+      "card": {
+        "amount_authorized": 3000,
+        "authorization_code": "179144",
+        "brand": "visa",
+        "checks": {
+          "address_line1_check": "pass",
+          "address_postal_code_check": "pass",
+          "cvc_check": "pass"
+        },
+        "country": "US",
+        "exp_month": 6,
+        "exp_year": 2026,
+        "extended_authorization": {
+          "status": "disabled"
+        },
+        "fingerprint": "9a8b6jfiX2GTWDq9",
+        "funding": "credit",
+        "incremental_authorization": {
+          "status": "unavailable"
+        },
+        "installments": null,
+        "last4": "4242",
+        "mandate": null,
+        "multicapture": {
+          "status": "unavailable"
+        },
+        "network": "visa",
+        "network_token": {
+          "used": false
+        },
+        "network_transaction_id": "579756985410610",
+        "overcapture": {
+          "maximum_amount_capturable": 3000,
+          "status": "unavailable"
+        },
+        "regulated_status": "unregulated",
+        "three_d_secure": null,
+        "wallet": null
+      },
+      "type": "card"
+    },
+    "radar_options": {},
+    "receipt_email": null,
+    "receipt_number": null,
+    "receipt_url": "https://pay.stripe.com/receipts/payment/CAcaFwoVYWNjdF8xUUFYdk1GS0VxenZacTZ4KJ_yhcMGMga3ldRkdSs6LBYq4up8hBwsnwJ1tE0-QkPDNHoaAzYNvSw4K4bGL-xIa66zAdEi0J63_a4D",
+    "refunded": false,
+    "review": null,
+    "shipping": {
+      "address": {
+        "city": "San Francisco",
+        "country": "US",
+        "line1": "510 Townsend St",
+        "line2": null,
+        "postal_code": "94103",
+        "state": "CA"
+      },
+      "carrier": null,
+      "name": "Jenny Rosen",
+      "phone": null,
+      "tracking_number": null
+    },
+    "source": null,
+    "source_transfer": null,
+    "statement_descriptor": null,
+    "statement_descriptor_suffix": null,
+    "status": "succeeded",
+    "transfer_data": null,
+    "transfer_group": null
+  },
+  "previous_attributes": {
+    "balance_transaction": null,
+    "receipt_url": "https://pay.stripe.com/receipts/payment/CAcaFwoVYWNjdF8xUUFYdk1GS0VxenZacTZ4KJ_yhcMGMgZR5zvqJX06LBZ6QmO9zNdWkjSLko_dPwWUr945O4VPwGD7fxIm9ruIvLDtPoyE58mhxZtG"
+  }
+}
+Unhandled event type: charge.updated
+ POST /api/stripe/webhook 200 in 201ms
+ GET / 200 in 377ms
+ ✓ Compiled in 236ms (491 modules)
+ ✓ Compiled in 179ms (491 modules)
+ ✓ Compiled in 165ms (491 modules)
+ ✓ Compiled in 159ms (491 modules)
+ ✓ Compiled in 159ms (491 modules)
+ ✓ Compiled in 164ms (491 modules)
+ ✓ Compiled in 159ms (491 modules)
+ ✓ Compiled in 161ms (491 modules)
+ ✓ Compiled in 156ms (491 modules)
+ ✓ Compiled in 159ms (491 modules)
+ ✓ Compiled in 161ms (491 modules)
+ ✓ Compiled in 159ms (491 modules)
+ ✓ Compiled in 195ms (491 modules)
+ ✓ Compiled in 164ms (491 modules)
+ ✓ Compiled in 170ms (491 modules)
+ ✓ Compiled in 163ms (491 modules)
+ ✓ Compiled in 162ms (491 modules)
+ ✓ Compiled in 161ms (491 modules)
+ ✓ Compiled in 165ms (491 modules)
+ ✓ Compiled in 161ms (491 modules)
+ ✓ Compiled in 160ms (491 modules)
+ ✓ Compiled in 161ms (491 modules)
+ ✓ Compiled in 163ms (491 modules)
+ ✓ Compiled in 156ms (491 modules)
+ ✓ Compiled in 157ms (491 modules)
+ ✓ Compiled in 157ms (491 modules)
+ ✓ Compiled in 156ms (491 modules)
+ ✓ Compiled in 162ms (491 modules)
+ ✓ Compiled in 158ms (491 modules)
+ ✓ Compiled in 158ms (491 modules)
+ ✓ Compiled in 158ms (491 modules)
+ ✓ Compiled in 155ms (491 modules)
+ ✓ Compiled in 154ms (491 modules)
+ ✓ Compiled in 165ms (491 modules)
+ ✓ Compiled in 192ms (491 modules)
+ ✓ Compiled in 173ms (491 modules)
+ ✓ Compiled in 172ms (491 modules)
+[NextAuth] Session callback: Added id 63 to session for user dmitrygrankin0@gmail.com
+ GET / 200 in 200ms
+ ✓ Compiled in 174ms (491 modules)
+ ✓ Compiled in 167ms (491 modules)
+ ✓ Compiled in 166ms (491 modules)
+ ✓ Compiled in 163ms (491 modules)
+ ✓ Compiled in 160ms (491 modules)
+ ✓ Compiled in 163ms (491 modules)
+ ✓ Compiled in 163ms (491 modules)
+ ✓ Compiled in 164ms (491 modules)
+[NextAuth] Session callback: Added id 63 to session for user dmitrygrankin0@gmail.com
+ ✓ Compiled in 171ms (491 modules)
+ GET / 200 in 185ms
+ ✓ Compiled in 165ms (491 modules)
+ ✓ Compiled in 162ms (491 modules)
+ ✓ Compiled in 165ms (491 modules)
+ ✓ Compiled in 164ms (491 modules)
+ ✓ Compiled in 161ms (491 modules)
+ ✓ Compiled in 161ms (491 modules)
+ ✓ Compiled in 160ms (491 modules)
+ ✓ Compiled in 181ms (491 modules)
+[NextAuth] Session callback: Added id 63 to session for user dmitrygrankin0@gmail.com
+ GET / 200 in 401ms
+ ✓ Compiled in 264ms (491 modules)
+ ✓ Compiled in 180ms (491 modules)
+ ✓ Compiled in 173ms (491 modules)
+ ✓ Compiled in 158ms (491 modules)
+ ✓ Compiled in 163ms (491 modules)
+ ✓ Compiled in 161ms (491 modules)
+ ✓ Compiled in 162ms (491 modules)
+ ✓ Compiled in 162ms (491 modules)
+ ✓ Compiled in 162ms (491 modules)
+ ✓ Compiled in 157ms (491 modules)
+ ✓ Compiled in 157ms (491 modules)
+ ✓ Compiled in 157ms (491 modules)
+ ✓ Compiled in 157ms (491 modules)
+ ✓ Compiled in 156ms (491 modules)
+ ✓ Compiled in 158ms (491 modules)
+ ✓ Compiled in 159ms (491 modules)
+ ✓ Compiled in 165ms (491 modules)
+ ✓ Compiled in 159ms (491 modules)
+ ✓ Compiled in 154ms (491 modules)
+ ✓ Compiled in 159ms (491 modules)
+ ✓ Compiled in 162ms (491 modules)
+ ✓ Compiled in 197ms (491 modules)
+ ✓ Compiled in 168ms (491 modules)
+ ✓ Compiled in 165ms (491 modules)
+ ✓ Compiled in 162ms (491 modules)
+ ✓ Compiled in 158ms (491 modules)
+ ✓ Compiled in 157ms (491 modules)
+ ✓ Compiled in 157ms (491 modules)
+ ✓ Compiled in 166ms (491 modules)
+ ✓ Compiled in 155ms (491 modules)
+ ✓ Compiled in 158ms (491 modules)
+ ✓ Compiled in 161ms (491 modules)
+ ✓ Compiled in 160ms (491 modules)
+ ✓ Compiled in 158ms (491 modules)
+ ✓ Compiled in 156ms (491 modules)
+ ✓ Compiled in 154ms (491 modules)
+ ✓ Compiled in 157ms (491 modules)
+ ✓ Compiled in 157ms (491 modules)
+ ✓ Compiled in 162ms (491 modules)
+ ✓ Compiled in 160ms (491 modules)
+ ✓ Compiled in 157ms (491 modules)
+ ✓ Compiled in 165ms (491 modules)
+ ✓ Compiled in 159ms (491 modules)
+ ✓ Compiled in 197ms (491 modules)
+ ✓ Compiled in 164ms (491 modules)
+ ✓ Compiled in 166ms (491 modules)
+ ✓ Compiled in 161ms (491 modules)
+ ✓ Compiled in 159ms (491 modules)
+ ✓ Compiled in 162ms (491 modules)
+ ✓ Compiled in 161ms (491 modules)
+ ✓ Compiled in 160ms (491 modules)
+ ✓ Compiled in 155ms (491 modules)
+ ✓ Compiled in 157ms (491 modules)
+ ✓ Compiled in 163ms (491 modules)
+ ✓ Compiled in 158ms (491 modules)
+ ✓ Compiled in 161ms (491 modules)
+ ○ Compiling /pricing ...
+ ✓ Compiled /pricing in 687ms (1520 modules)
+[NextAuth] Session callback: Added id 63 to session for user dmitrygrankin0@gmail.com
+ ✓ Compiled in 448ms (505 modules)
+ ✓ Compiled in 177ms (505 modules)
+ GET /pricing 200 in 1200ms
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 160ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 159ms (505 modules)
+ ✓ Compiled in 158ms (505 modules)
+ ✓ Compiled in 156ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 159ms (505 modules)
+ ✓ Compiled in 159ms (505 modules)
+ ✓ Compiled in 159ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 160ms (505 modules)
+ ✓ Compiled in 160ms (505 modules)
+ ✓ Compiled in 160ms (505 modules)
+ ✓ Compiled in 160ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 203ms (505 modules)
+ ✓ Compiled in 172ms (505 modules)
+ ✓ Compiled in 169ms (505 modules)
+[NextAuth] Session callback: Added id 63 to session for user dmitrygrankin0@gmail.com
+ ✓ Compiled in 215ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ GET /pricing 200 in 550ms
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 167ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 159ms (505 modules)
+ ✓ Compiled in 160ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 157ms (505 modules)
+ ✓ Compiled in 159ms (505 modules)
+ ✓ Compiled in 159ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 159ms (505 modules)
+ ✓ Compiled in 158ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 158ms (505 modules)
+ ✓ Compiled in 197ms (505 modules)
+ ✓ Compiled in 168ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 160ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 156ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 159ms (505 modules)
+ ✓ Compiled in 157ms (505 modules)
+ ✓ Compiled in 159ms (505 modules)
+ ✓ Compiled in 168ms (505 modules)
+ ✓ Compiled in 207ms (505 modules)
+ ✓ Compiled in 173ms (505 modules)
+ ✓ Compiled in 172ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 168ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 160ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 223ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 170ms (505 modules)
+ ✓ Compiled in 167ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 168ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 159ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 168ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 167ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 169ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 168ms (505 modules)
+ ✓ Compiled in 169ms (505 modules)
+ ✓ Compiled in 213ms (505 modules)
+ ✓ Compiled in 177ms (505 modules)
+ ✓ Compiled in 171ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 167ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 174ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 171ms (505 modules)
+ ✓ Compiled in 168ms (505 modules)
+ ✓ Compiled in 215ms (505 modules)
+ ✓ Compiled in 178ms (505 modules)
+ ✓ Compiled in 180ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 160ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 169ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 170ms (505 modules)
+ ✓ Compiled in 208ms (505 modules)
+ ✓ Compiled in 175ms (505 modules)
+ ✓ Compiled in 169ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 167ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 167ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 168ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 169ms (505 modules)
+ ✓ Compiled in 204ms (505 modules)
+ ✓ Compiled in 177ms (505 modules)
+ ✓ Compiled in 170ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 158ms (505 modules)
+ ✓ Compiled in 167ms (505 modules)
+ ✓ Compiled in 167ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 166ms (505 modules)
+ ✓ Compiled in 160ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 167ms (505 modules)
+ ✓ Compiled in 207ms (505 modules)
+ ✓ Compiled in 174ms (505 modules)
+ ✓ Compiled in 170ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 160ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 167ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+ ✓ Compiled in 161ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 165ms (505 modules)
+ ✓ Compiled in 163ms (505 modules)
+ ✓ Compiled in 164ms (505 modules)
+ ✓ Compiled in 162ms (505 modules)
+[?25h
