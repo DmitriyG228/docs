@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "setup-docs": "node scripts/setup-docs.js",
-    "dev": "npm run setup-docs && NEXTAUTH_URL='http://localhost:3001' ADMIN_API_URL='http://localhost:8056' next dev -p 3001",
+    "dev": "npm run setup-docs && NEXTAUTH_URL='http://localhost:3001' next dev -p 3001",
     "build": "npm run setup-docs && next build",
     "start": "next start",
     "lint": "next lint"
