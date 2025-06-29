@@ -9,7 +9,6 @@ import { Github, Linkedin } from 'lucide-react'
 import { CookieConsent } from '@/components/cookie-consent'
 import AuthProvider from "@/components/AuthProvider";
 import AuthButtons from "@/components/AuthButtons";
-import { MobileNav } from "@/components/ui/mobile-nav";
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth/next';
 import './globals.css'
@@ -35,11 +34,8 @@ export const metadata: Metadata = {
   }
 }
 
-export const dynamic = 'force-dynamic';
-
 // Google Analytics Measurement ID from environment variable
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
-const UMAMI_WEBSITE_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
 
 export default async function RootLayout({
   children,
@@ -79,14 +75,6 @@ export default async function RootLayout({
             }} />
           </>
         )}
-        {/* Umami Analytics */}
-        {UMAMI_WEBSITE_ID && (
-          <script 
-            defer 
-            src="https://cloud.umami.is/script.js" 
-            data-website-id={UMAMI_WEBSITE_ID}
-          />
-        )}
       </head>
       <body className={inter.className}>
         <AuthProvider>
@@ -115,16 +103,16 @@ export default async function RootLayout({
                     <Link href="/" className="text-sm font-medium transition-colors hover:text-primary">
                       Home
                     </Link>
-                    <Link href="/get-started" className="text-sm font-medium transition-colors hover:text-primary">
-                      Get Started
-                    </Link>
                     <Link 
-                      href="https://github.com/Vexa-ai/vexa/blob/main/docs/user_api_guide.md" 
+                      href="https://github.com/Vexa-ai/vexa/blob/feature/traefik/docs/user_api_guide.md" 
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm font-medium transition-colors hover:text-primary"
                     >
                       API Docs
+                    </Link>
+                    <Link href="/pricing" className="text-sm font-medium transition-colors hover:text-primary">
+                      Pricing
                     </Link>
                     <Link href="/public-beta" className="text-sm font-medium transition-colors hover:text-primary">
                       Public Beta
@@ -139,9 +127,6 @@ export default async function RootLayout({
                     )}
                   </nav>
                   <div className="flex items-center gap-2">
-                    <div className="md:hidden">
-                      <MobileNav />
-                    </div>
                     <Link 
                       href="https://github.com/Vexa-ai/vexa" 
                       target="_blank" 
