@@ -4,7 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2025-07-30.basil',
 })
 
 // Exact same pricing formula from DynamicPricingCard
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id || !session?.user?.email) {
+    if (!(session?.user as any)?.id || !session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -62,9 +62,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate bot count
-    if (newBotCount < 5 || newBotCount > 1000) {
+    if (newBotCount < 5 || newBotCount > 2000) {
       return NextResponse.json(
-        { error: 'Invalid bot count. Must be between 5 and 1000.' },
+        { error: 'Invalid bot count. Must be between 5 and 2000.' },
         { status: 400 }
       )
     }
@@ -90,7 +90,6 @@ export async function POST(request: NextRequest) {
       recurring: { interval: 'month' },
       product_data: {
         name: `Vexa AI Bots - ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`,
-        description: `${newBotCount} concurrent bots for ${session.user.email}`,
         metadata: {
           botCount: newBotCount.toString(),
           tier,

@@ -523,7 +523,7 @@ export default function GetStartedPage() {
             Get your API key to authenticate your requests to Vexa.ai.
           </p>
           <Link 
-            href="https://vexa.ai/dashboard/api-keys" 
+            href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/dashboard/api-keys`} 
             target="_blank"
             className="block w-full"
             onClick={() => setUnlockedSteps(prev => ({...prev, 1: true}))}

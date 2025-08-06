@@ -36,6 +36,7 @@ interface UserData {
     subscription_status?: string
     subscription_tier?: string
     stripe_subscription_id?: string
+    original_bot_count?: number
   }
 }
 
@@ -50,13 +51,13 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (sessionStatus !== "authenticated" || !session?.user?.id) {
+      if (sessionStatus !== "authenticated" || !(session?.user as any)?.id) {
         setIsLoading(false)
         return
       }
 
       try {
-        const response = await fetch(`/api/admin/tokens?userId=${session.user.id}`)
+        const response = await fetch(`/api/admin/tokens?userId=${(session?.user as any).id}`)
         
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}))
@@ -64,8 +65,10 @@ export default function DashboardPage() {
         }
         
         const data = await response.json()
+        console.log(`[Dashboard] Admin API returned:`, JSON.stringify(data, null, 2))
         setUserData(data)
         // Initialize bot count slider with current value
+        console.log(`[Dashboard] Setting bot count to: ${data.max_concurrent_bots || 1}`)
         setNewBotCount([data.max_concurrent_bots || 1])
       } catch (err) {
         console.error("Error fetching user data:", err)
@@ -215,6 +218,8 @@ export default function DashboardPage() {
     switch (status) {
       case 'active':
         return <Badge className="bg-green-100 text-green-800">Active</Badge>
+      case 'cancelling':
+        return <Badge className="bg-yellow-100 text-yellow-800">Cancelling</Badge>
       case 'canceled':
         return <Badge variant="destructive">Canceled</Badge>
       case 'past_due':
@@ -222,6 +227,10 @@ export default function DashboardPage() {
       default:
         return <Badge variant="secondary">Free Plan</Badge>
     }
+  }
+
+  const isInGracePeriod = (status?: string) => {
+    return status === 'cancelling'
   }
 
   if (sessionStatus === "loading" || isLoading) {
@@ -307,13 +316,22 @@ export default function DashboardPage() {
                   </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {userData?.max_concurrent_bots || 1} bot{(userData?.max_concurrent_bots || 1) > 1 ? 's' : ''}
-                    </div>
+              {(() => {
+                const count = userData?.max_concurrent_bots || 1
+                console.log(`[Dashboard] Bot count display: max_concurrent=${userData?.max_concurrent_bots}, status=${userData?.data?.subscription_status}, final=${count}`)
+                return `${count} bot${count > 1 ? 's' : ''}`
+              })()}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {userData?.data?.subscription_tier ? 
-                `${userData.data.subscription_tier.charAt(0).toUpperCase() + userData.data.subscription_tier.slice(1)} Plan` : 
+              {userData?.data?.subscription_status === 'cancelling' ? (
+                <>
+                  Grace period - access until {userData?.data?.subscription_end_date ? formatPaymentDueDate(userData.data.subscription_end_date) : 'billing period ends'}
+                </>
+              ) : userData?.data?.subscription_tier ? (
+                `${userData.data.subscription_tier.charAt(0).toUpperCase() + userData.data.subscription_tier.slice(1)} Plan`
+              ) : (
                 'Free Plan'
-              }
+              )}
             </p>
                   </CardContent>
                 </Card>
@@ -330,10 +348,16 @@ export default function DashboardPage() {
                 {getSubscriptionStatus(userData?.data?.subscription_status)}
               </div>
               <div className="text-sm text-muted-foreground">
-                {userData?.data?.subscription_end_date ? (
+                {userData?.data?.subscription_status === 'active' || userData?.data?.subscription_status === 'cancelling' ? (
                   <>
-                    Next payment due: {formatPaymentDueDate(userData.data.subscription_end_date)}
+                    {userData?.data?.subscription_end_date ? (
+                      `Next payment due: ${formatPaymentDueDate(userData.data.subscription_end_date)}`
+                    ) : (
+                      "Active subscription"
+                    )}
                   </>
+                ) : userData?.data?.subscription_status === 'canceled' ? (
+                  "Subscription canceled"
                 ) : (
                   "No active subscription"
                 )}
@@ -366,14 +390,17 @@ export default function DashboardPage() {
       </div>
 
       {/* Subscription Management Section */}
-      {userData?.data?.subscription_status === 'active' && userData?.data?.stripe_subscription_id && (
+      {(userData?.data?.subscription_status === 'active' || userData?.data?.subscription_status === 'cancelling') && userData?.data?.stripe_subscription_id && (
         <div className="mt-8 space-y-6">
-          <div>
-            <h2 className="text-xl font-semibold mb-2">Subscription Management</h2>
-            <p className="text-muted-foreground text-sm">
-              Manage your subscription and bot limits
-            </p>
-          </div>
+                      <div>
+              <h2 className="text-xl font-semibold mb-2">Subscription Management</h2>
+              <p className="text-muted-foreground text-sm">
+                {userData?.data?.subscription_status === 'cancelling' 
+                  ? "Your subscription is being cancelled. You can still manage it until the end of your billing period."
+                  : "Manage your subscription and bot limits"
+                }
+              </p>
+            </div>
 
           <Card>
             <CardHeader>
@@ -393,15 +420,16 @@ export default function DashboardPage() {
                 <Slider
                   id="bot-count-slider"
                   min={5}
-                  max={200}
+                  max={2000}
                   step={1}
                   value={newBotCount}
                   onValueChange={setNewBotCount}
+                  disabled={userData?.data?.subscription_status === 'cancelling'}
                   className="w-full"
                 />
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span>5 bots</span>
-                  <span>200 bots</span>
+                  <span>2000 bots</span>
                   </div>
                 <div className="p-4 bg-muted rounded-lg">
                   <div className="text-sm font-medium">
@@ -416,8 +444,9 @@ export default function DashboardPage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   onClick={handleUpdateSubscription}
-                  disabled={isUpdatingSubscription || newBotCount[0] === userData?.max_concurrent_bots}
+                  disabled={isUpdatingSubscription || newBotCount[0] === userData?.max_concurrent_bots || userData?.data?.subscription_status === 'cancelling'}
                   className="flex-1"
+                  title={`Update button disabled: isUpdating=${isUpdatingSubscription}, newCount=${newBotCount[0]}, currentCount=${userData?.max_concurrent_bots}, status=${userData?.data?.subscription_status}`}
                 >
                   {isUpdatingSubscription ? (
                     <>

@@ -13,7 +13,7 @@ export default function EmailPreviewPage() {
   const [email, setEmail] = useState("user@example.com");
   const [showingHTML, setShowingHTML] = useState(true);
   const [showingText, setShowingText] = useState(false);
-  const [verifyLink, setVerifyLink] = useState("https://vexa.ai/email-verification/demo-token-placeholder");
+  const [verifyLink, setVerifyLink] = useState(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/email-verification/demo-token-placeholder`);
   const [emailConfigs, setEmailConfigs] = useState<{
     verifyEmailConfig: any;
     welcomeEmailConfig: any;
@@ -25,7 +25,7 @@ export default function EmailPreviewPage() {
   // Generate random token only on the client side after component mounts
   useEffect(() => {
     const randomToken = Math.floor(Math.random() * 1000000);
-    const newVerifyLink = `https://vexa.ai/email-verification/demo-token-${randomToken}`;
+    const newVerifyLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/email-verification/demo-token-${randomToken}`;
     setVerifyLink(newVerifyLink);
     
     // Get host to properly display images in the preview
@@ -69,7 +69,7 @@ export default function EmailPreviewPage() {
   
   // Update configs when company or email changes
   useEffect(() => {
-    if (verifyLink !== "https://vexa.ai/email-verification/demo-token-placeholder") {
+    if (verifyLink !== `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/email-verification/demo-token-placeholder`) {
       // Get host to properly display images in the preview
       const host = window.location.origin;
       

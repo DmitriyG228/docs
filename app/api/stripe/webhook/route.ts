@@ -30,16 +30,28 @@ export async function POST(request: NextRequest) {
         await handleSuccessfulPayment(event.data.object as Stripe.Checkout.Session)
         break
       case 'customer.subscription.updated':
+        console.log(`[Webhook] DEBUG: Processing customer.subscription.updated`)
+        console.log(`[Webhook] DEBUG: Full subscription object:`, JSON.stringify(event.data.object, null, 2))
         await handleSubscriptionUpdated(event.data.object as Stripe.Subscription)
         break
       case 'customer.subscription.deleted':
+        console.log(`[Webhook] DEBUG: Processing customer.subscription.deleted`)
         await handleSubscriptionCanceled(event.data.object as Stripe.Subscription)
         break
       case 'invoice.payment_failed':
+        console.log(`[Webhook] DEBUG: Processing invoice.payment_failed`)
         handlePaymentFailed(event.data.object as Stripe.Invoice)
         break
+      case 'invoice.payment_succeeded':
+        console.log(`[Webhook] DEBUG: Processing invoice.payment_succeeded`)
+        // Payment succeeded - no action needed as subscription updates are handled by subscription events
+        break
+      case 'invoiceitem.created':
+        console.log(`[Webhook] DEBUG: Processing invoiceitem.created`)
+        // Invoice item created (usually for prorations) - no action needed
+        break
       default:
-        console.log(`Unhandled event type: ${event.type}`)
+        console.log(`[Webhook] DEBUG: Unhandled event type: ${event.type}`)
     }
 
     return NextResponse.json({ received: true })
@@ -57,6 +69,8 @@ export async function updateUserInAdminApi(subscriptionData: {
   tier?: string
   status: string
   nextPaymentDate?: string | null
+  originalBotCount?: number
+  preserveBotCount?: boolean
 }) {
   const adminApiUrl = process.env.ADMIN_API_URL
   const adminApiToken = process.env.ADMIN_API_TOKEN
@@ -88,13 +102,14 @@ export async function updateUserInAdminApi(subscriptionData: {
 
   // 2. Update the user's bot count and subscription data
   const updatePayload = {
-    max_concurrent_bots: subscriptionData.botCount,
+    ...(subscriptionData.preserveBotCount ? {} : { max_concurrent_bots: subscriptionData.botCount }),
     data: {
       stripe_subscription_id: subscriptionData.subscriptionId,
       subscription_tier: subscriptionData.tier,
       subscription_status: subscriptionData.status,
       subscription_end_date: subscriptionData.nextPaymentDate,
       updated_by_webhook: new Date().toISOString(),
+      ...(subscriptionData.originalBotCount && { original_bot_count: subscriptionData.originalBotCount }),
     },
   }
 
@@ -160,14 +175,74 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     ? new Date((subscription as any).current_period_end * 1000).toISOString()
     : null
 
-  console.log(`[Webhook] Handling subscription update for ${customer.email}.`)
+  // Get bot count from subscription metadata first, then fall back to item quantity
+  const botCountFromMetadata = subscription.metadata?.botCount ? parseInt(subscription.metadata.botCount, 10) : null
+  const botCountFromItem = item.quantity || 0
+  const actualBotCount = botCountFromMetadata || botCountFromItem || 1 // Default to 1 if nothing found
+
+  // Determine the correct status and bot count based on subscription state
+  const isFullyCanceled = subscription.status === 'canceled'
+  const isCancelledAtPeriodEnd = subscription.cancel_at_period_end
+  const isActive = subscription.status === 'active'
+  
+  // Calculate the effective status and bot count
+  let effectiveStatus: string
+  let effectiveBotCount: number
+  
+  if (isFullyCanceled) {
+    // Subscription is fully cancelled - no access (grace period ended)
+    effectiveStatus = 'canceled'
+    effectiveBotCount = 0
+  } else if (isCancelledAtPeriodEnd && isActive) {
+    // Cancelled but still active until period end - keep access (grace period)
+    effectiveStatus = 'cancelling'
+    effectiveBotCount = actualBotCount // Keep original bot count during grace period
+  } else if (isActive) {
+    // Normal active subscription
+    effectiveStatus = 'active'
+    effectiveBotCount = actualBotCount
+  } else if (subscription.status === 'past_due' || subscription.status === 'unpaid') {
+    // Payment issues - no access
+    effectiveStatus = subscription.status
+    effectiveBotCount = 0
+  } else {
+    // Other statuses - keep current bot count unless explicitly cancelled
+    effectiveStatus = subscription.status
+    effectiveBotCount = actualBotCount
+  }
+  
+  console.log(`[Webhook] DEBUG: Subscription details for ${customer.email}:`)
+  console.log(`  - Status: ${subscription.status}`)
+  console.log(`  - Cancel at period end: ${subscription.cancel_at_period_end}`)
+  console.log(`  - Canceled at: ${subscription.canceled_at}`)
+  console.log(`  - Current period end: ${(subscription as any).current_period_end}`)
+  console.log(`  - Item quantity: ${item.quantity}`)
+  console.log(`  - Bot count from metadata: ${botCountFromMetadata}`)
+  console.log(`  - Bot count from item: ${botCountFromItem}`)
+  console.log(`  - Actual bot count: ${actualBotCount}`)
+  console.log(`  - Is fully canceled: ${isFullyCanceled}`)
+  console.log(`  - Is cancelled at period end: ${isCancelledAtPeriodEnd}`)
+  console.log(`  - Effective status: ${effectiveStatus}`)
+  console.log(`  - Effective bot count: ${effectiveBotCount}`)
+  console.log(`  - Subscription metadata:`, JSON.stringify(subscription.metadata, null, 2))
+  
+  // Log the transition if this is the end of grace period
+  if (isFullyCanceled && subscription.canceled_at) {
+    const canceledAt = new Date(subscription.canceled_at * 1000)
+    console.log(`[Webhook] INFO: Grace period ended for ${customer.email} at ${canceledAt.toISOString()}`)
+  }
+  
   await updateUserInAdminApi({
     email: customer.email,
-    botCount: item.quantity || 0, // Assuming quantity represents bot count
+    botCount: effectiveBotCount,
     subscriptionId: subscription.id,
     tier: item.price.nickname || undefined,
-    status: subscription.status,
-    nextPaymentDate,
+    status: effectiveStatus,
+    nextPaymentDate: effectiveStatus === 'active' ? nextPaymentDate : null,
+    // Store original bot count in metadata for grace period display
+    originalBotCount: isCancelledAtPeriodEnd ? actualBotCount : undefined,
+    // Don't update bot count during grace period - keep existing value
+    preserveBotCount: isCancelledAtPeriodEnd,
   })
 }
 
@@ -175,7 +250,9 @@ async function handleSubscriptionCanceled(subscription: Stripe.Subscription) {
   const customer = await stripe.customers.retrieve(subscription.customer as string)
   if (customer.deleted || !customer.email) return
 
-  console.log(`[Webhook] Handling subscription cancellation for ${customer.email}.`)
+  console.log(`[Webhook] DEBUG: Handling subscription cancellation for ${customer.email}.`)
+  console.log(`[Webhook] DEBUG: Subscription ID: ${subscription.id}, Status: ${subscription.status}`)
+  
   await updateUserInAdminApi({
     email: customer.email,
     botCount: 0, // Set bot count to 0 on cancellation
