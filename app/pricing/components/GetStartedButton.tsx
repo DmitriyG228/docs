@@ -2,13 +2,15 @@
 
 import { useSession, signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
+import { useState } from 'react'
 
 interface GetStartedButtonProps {
   buttonText?: string
   buttonVariant?: 'default' | 'outline'
   isPopular?: boolean
   isEnterprise?: boolean
-  isLoading?: boolean // Added for consistency
+  isLoading?: boolean
+  planType?: 'mvp' | 'dynamic' | 'enterprise' | 'local' | 'community' | 'nomad' | 'dedicated'
 }
 
 export function GetStartedButton({
@@ -17,13 +19,59 @@ export function GetStartedButton({
   isPopular = false,
   isEnterprise = false,
   isLoading = false,
+  planType = 'dynamic',
 }: GetStartedButtonProps) {
   const { data: session } = useSession()
+  const [isSubscribing, setIsSubscribing] = useState(false)
+
+  const handleMvpSubscription = async () => {
+    if (!session) {
+      signIn('google', { callbackUrl: '/pricing' })
+      return
+    }
+
+    setIsSubscribing(true)
+    try {
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planType: 'mvp',
+          botCount: 1, // MVP has 1 concurrent meeting
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session')
+      }
+
+      if (data.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url
+      } else {
+        throw new Error(data.error || 'Failed to start checkout')
+      }
+    } catch (error) {
+      console.error('Error creating MVP checkout session:', error)
+      alert('Failed to start checkout. Please try again.')
+    } finally {
+      setIsSubscribing(false)
+    }
+  }
 
   const handleButtonClick = () => {
     if (isEnterprise) {
       // Enterprise buttons should link to a contact form/page
       window.location.href = '/contact-sales' // Or your specific contact URL
+      return
+    }
+
+    if (planType === 'mvp') {
+      handleMvpSubscription()
       return
     }
 
@@ -39,6 +87,7 @@ export function GetStartedButton({
 
   const getButtonText = () => {
     if (isEnterprise) return 'Contact Sales'
+    if (planType === 'mvp' && session) return 'Start Free Trial - No Credit Card'
     if (!session) return 'Sign in to Get Started'
     return buttonText // e.g., 'Go to Dashboard' or the original 'Get Started'
   }
@@ -49,9 +98,9 @@ export function GetStartedButton({
       variant={buttonVariant}
       size="lg"
       onClick={handleButtonClick}
-      disabled={isLoading}
+      disabled={isLoading || isSubscribing}
     >
-      {getButtonText()}
+      {isSubscribing ? 'Loading...' : getButtonText()}
     </Button>
   )
 } 

@@ -1,43 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route' // Adjust path if needed
-
+import { authOptions } from '../../auth/[...nextauth]/route'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2025-07-30.basil',
+})
 
-// Exact same pricing formula from DynamicPricingCard
-function calculatePrice(bots: number): number {
-  // Per-bot cost decreases with volume: starts at $24, approaches $10 minimum
-  // Using slower exponential decay: cost = 10 + 14 * e^(-bots/100)
-  const perBotCost = 10 + 14 * Math.exp(-bots / 100);
+// Helper function to find existing product and price
+async function findExistingProductAndPrice() {
+  // Find the "Bot subscription" product
+  const products = await stripe.products.list({
+    active: true,
+    limit: 100,
+  })
   
-  // Base price calculation with $10 minimum per bot
-  let basePrice = Math.round(bots * Math.max(10, perBotCost));
-  
-  // Apply floor of $120
-  basePrice = Math.max(120, basePrice);
-  
-  // Apply tier cliffs (volume discounts for reaching tier thresholds)
-  if (bots >= 180) {
-    // Scale tier: 15% discount for high volume
-    basePrice = Math.round(basePrice * 0.85);
-  } else if (bots >= 30) {
-    // Growth tier: 10% discount for medium volume
-    basePrice = Math.round(basePrice * 0.90);
-  } else if (bots >= 5) {
-    // Startup tier: 5% discount for minimum viable volume
-    basePrice = Math.round(basePrice * 0.95);
+  const botProduct = products.data.find(p => p.name === "Bot subscription")
+  if (!botProduct) {
+    throw new Error("Bot subscription product not found. Please run the stripe_sync.py script first.")
   }
-  
-  // Ensure floor is maintained after discounts and $10/bot minimum
-  return Math.max(120, Math.max(bots * 10, basePrice));
-}
 
-function getPricingTier(bots: number): 'startup' | 'growth' | 'scale' {
-  if (bots < 30) return 'startup'
-  if (bots < 180) return 'growth'
-  return 'scale'
+  // Find the "Startup" price for this product
+  const prices = await stripe.prices.list({
+    product: botProduct.id,
+    active: true,
+    limit: 100,
+  })
+
+  const startupPrice = prices.data.find(p => p.nickname === "Startup")
+  if (!startupPrice) {
+    throw new Error("Startup price not found. Please run the stripe_sync.py script first.")
+  }
+
+  return { product: botProduct, price: startupPrice }
 }
 
 export async function POST(request: NextRequest) {
@@ -51,9 +46,71 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { botCount } = await request.json()
+    const { botCount, planType = 'dynamic' } = await request.json()
 
-    // Validate input
+    // Handle MVP plan - Use Checkout with trial and no payment collection
+    if (planType === 'mvp') {
+      const origin = request.headers.get('origin') || 'http://localhost:3001'
+      const userEmail = session.user.email
+
+      try {
+        // Find existing product and price
+        const { product, price } = await findExistingProductAndPrice()
+
+        // Create Checkout Session with trial and no upfront payment collection
+        const stripeSession = await stripe.checkout.sessions.create({
+          mode: 'subscription',
+          customer_email: userEmail,
+          line_items: [
+            {
+              price: price.id,
+              quantity: 1,
+            },
+          ],
+          // Key parameters for no-payment-required trial
+          subscription_data: {
+            trial_period_days: 7,
+            trial_settings: {
+              end_behavior: {
+                missing_payment_method: 'cancel',
+              },
+            },
+            metadata: {
+              botCount: '1',
+              tier: 'mvp',
+              pricePerBot: '12.00',
+              userEmail,
+            },
+          },
+          payment_method_collection: 'if_required', // This is the key!
+          success_url: `${origin}/dashboard?session_id={CHECKOUT_SESSION_ID}&trial_started=true`,
+          cancel_url: `${origin}/pricing`,
+          metadata: {
+            botCount: '1',
+            tier: 'mvp',
+            pricePerBot: '12.00',
+            userEmail,
+          },
+          allow_promotion_codes: true,
+        })
+
+        console.log(`Created MVP trial checkout session ${stripeSession.id} for ${userEmail}`)
+
+        return NextResponse.json({ 
+          sessionId: stripeSession.id,
+          url: stripeSession.url 
+        })
+
+      } catch (error) {
+        console.error('Error creating MVP trial checkout:', error)
+        return NextResponse.json(
+          { error: 'Failed to start trial. Please try again.' },
+          { status: 500 }
+        )
+      }
+    }
+
+    // Validate input for dynamic plans
     if (!botCount || botCount < 5 || botCount > 1000) {
       return NextResponse.json(
         { error: 'Invalid bot count. Must be between 5 and 1000.' },
@@ -69,53 +126,48 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const price = calculatePrice(botCount)
-    const tier = getPricingTier(botCount)
     const origin = request.headers.get('origin') || 'http://localhost:3001'
     const userEmail = session.user.email
 
-    const stripeSession = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      customer_email: userEmail, // Force the authenticated user's email
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: `Vexa AI Bots - ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`,
-              description: `${botCount} concurrent bots for ${userEmail}`,
-              metadata: {
-                botCount: botCount.toString(),
-                tier,
-                userEmail, // Also store in metadata for the webhook
-              },
-            },
-            unit_amount: price * 100, // Stripe expects cents
-            recurring: {
-              interval: 'month',
-            },
+    try {
+      // Find existing product and price
+      const { product, price } = await findExistingProductAndPrice()
+
+      // Create checkout session using existing price
+      const stripeSession = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        customer_email: userEmail,
+        line_items: [
+          {
+            price: price.id,
+            quantity: botCount, // Use quantity to specify bot count for tiered pricing
           },
-          quantity: 1,
+        ],
+        mode: 'subscription',
+        success_url: `${origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/pricing`,
+        metadata: {
+          botCount: botCount.toString(),
+          tier: 'startup',
+          userEmail,
         },
-      ],
-      mode: 'subscription',
-      success_url: `${origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/pricing`,
-      metadata: {
-        botCount: botCount.toString(),
-        tier,
-        pricePerBot: (price / botCount).toFixed(2),
-        userEmail, // Store the authenticated email in the session metadata
-      },
-      allow_promotion_codes: true,
-    })
+        allow_promotion_codes: true,
+      })
 
-    console.log(`Created checkout session for ${userEmail}: ${botCount} bots (${tier} tier)`)
+      console.log(`Created checkout session for ${userEmail}: ${botCount} bots using existing price`)
 
-    return NextResponse.json({ 
-      sessionId: stripeSession.id,
-      url: stripeSession.url 
-    })
+      return NextResponse.json({ 
+        sessionId: stripeSession.id,
+        url: stripeSession.url 
+      })
+
+    } catch (error) {
+      console.error('Error creating checkout session:', error)
+      return NextResponse.json(
+        { error: 'Failed to create checkout session. Please try again.' },
+        { status: 500 }
+      )
+    }
 
   } catch (error) {
     console.error('Error creating checkout session:', error)

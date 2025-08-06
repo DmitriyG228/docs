@@ -28,6 +28,7 @@ interface PricingCardProps {
   valueProposition?: string
   idealFor?: string
   isEnterprise?: boolean
+  planType?: 'mvp' | 'dynamic' | 'enterprise' | 'local' | 'community' | 'nomad' | 'dedicated'
 }
 
 function PricingCard({
@@ -44,7 +45,8 @@ function PricingCard({
   buttonVariant = 'default',
   valueProposition,
   idealFor,
-  isEnterprise = false
+  isEnterprise = false,
+  planType = 'dynamic',
 }: PricingCardProps) {
   const cardClassName = isEnterprise 
     ? 'relative rounded-xl border bg-gradient-to-br from-primary/5 to-primary/10 shadow-lg flex flex-col'
@@ -103,6 +105,7 @@ function PricingCard({
               buttonVariant={buttonVariant}
               isPopular={isPopular}
               isEnterprise={isEnterprise}
+              planType={planType}
             />
           )}
         </div>
@@ -163,14 +166,20 @@ export default function PricingPage() {
               {/* MVP Plan */}
               <PricingCard
                 name="MVP"
-                description="Perfect for building MVP and self use"
+                description="Start with 7-day free trial, no credit card required"
                 price="$12"
                 period="/mo"
-                features={["1 concurrent meeting", "Unlimited transcription volume", "Community Slack support"]}
+                features={[
+                  "7-day free trial • No credit card required",
+                  "1 concurrent meeting", 
+                  "Unlimited transcription volume", 
+                  "Community Slack support"
+                ]}
                 icon={<Users className="h-5 w-5 text-primary" />}
-                badge="Most Popular for Starters"
+                badge="No Credit Card Required"
                 isPopular={true}
                 idealFor="Ideal for: Freelancers, students, MVP builders"
+                planType="mvp"
               />
 
               {/* Dynamic Business Plan */}
@@ -191,6 +200,7 @@ export default function PricingPage() {
                   isEnterprise={true}
                   buttonText="Contact Sales"
                   buttonVariant="outline"
+                  planType="enterprise"
                 />
               </div>
             </div>
@@ -277,6 +287,7 @@ export default function PricingPage() {
               icon={<Users className="h-5 w-5 text-primary" />}
               isPopular={true}
               idealFor="Demos, coursework, hack-days"
+              planType="local"
             />
 
             {/* Option B - Community GPU */}
@@ -288,6 +299,7 @@ export default function PricingPage() {
               features={["Ops effort†: ●●●◐◐", "Latency / quality: &lt;300 ms lag, good accuracy"]}
               icon={<Zap className="h-5 w-5 text-primary" />}
               idealFor="Solo founders needing a public API"
+              planType="community"
             />
 
             {/* Option C - Nomad Starter */}
@@ -299,6 +311,7 @@ export default function PricingPage() {
               features={["Ops effort†: ●●◐◐◐", "Latency / quality: &lt;250 ms lag"]}
               icon={<Globe className="h-5 w-5 text-primary" />}
               idealFor="Seed-stage SaaS, privacy-critical"
+              planType="nomad"
             />
 
             {/* Option D - Nomad Growth / Enterprise */}
@@ -310,6 +323,7 @@ export default function PricingPage() {
               features={["Ops effort†: ●◐◐◐◐", "Latency / quality: 200 ms lag, 99.9% SLA"]}
               icon={<Server className="h-5 w-5 text-primary" />}
               idealFor="Contact-centre tech, regulated"
+              planType="nomad"
             />
 
             {/* Option E - Dedicated Cloud */}
@@ -324,6 +338,7 @@ export default function PricingPage() {
               buttonText="Contact Sales"
               buttonVariant="outline"
               idealFor="Isolation with zero infra work"
+              planType="dedicated"
             />
             </div>
 

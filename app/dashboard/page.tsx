@@ -45,9 +45,7 @@ export default function DashboardPage() {
   const [userData, setUserData] = useState<UserData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [newBotCount, setNewBotCount] = useState([25]) // Default to 25 bots
-  const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false)
-  const [isCancelingSubscription, setIsCancelingSubscription] = useState(false)
+  const [isOpeningPortal, setIsOpeningPortal] = useState(false)
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -67,9 +65,7 @@ export default function DashboardPage() {
         const data = await response.json()
         console.log(`[Dashboard] Admin API returned:`, JSON.stringify(data, null, 2))
         setUserData(data)
-        // Initialize bot count slider with current value
-        console.log(`[Dashboard] Setting bot count to: ${data.max_concurrent_bots || 1}`)
-        setNewBotCount([data.max_concurrent_bots || 1])
+        // No longer need to set bot count since we're using Stripe portal
       } catch (err) {
         console.error("Error fetching user data:", err)
         setError(err instanceof Error ? err.message : 'Failed to load user data')
@@ -104,98 +100,38 @@ export default function DashboardPage() {
     return 'scale'
   }
 
-  const handleUpdateSubscription = async () => {
-    if (!userData?.data?.stripe_subscription_id) {
-      toast({
-        title: "Error",
-        description: "No active subscription found",
-        variant: "destructive",
-      })
-      return
-    }
 
-    setIsUpdatingSubscription(true)
+
+  const handleOpenStripePortal = async () => {
+    console.log('[Dashboard] Opening Stripe portal...')
+    setIsOpeningPortal(true)
     try {
-      const response = await fetch('/api/stripe/modify-subscription', {
+      const response = await fetch('/api/stripe/create-portal-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          subscriptionId: userData.data.stripe_subscription_id,
-          newBotCount: newBotCount[0],
-        }),
       })
 
       const data = await response.json()
+      console.log('[Dashboard] Portal response:', data)
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to update subscription')
+        throw new Error(data.error || 'Failed to open billing portal')
       }
 
-      toast({
-        title: "Subscription Updated",
-        description: `Your subscription has been updated to ${newBotCount[0]} bots`,
-      })
-
-      // Refresh user data
-      window.location.reload()
+      console.log('[Dashboard] Redirecting to:', data.url)
+      // Redirect to Stripe Customer Portal
+      window.location.href = data.url
     } catch (error) {
-      console.error('Error updating subscription:', error)
+      console.error('Error opening portal:', error)
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : 'Failed to update subscription',
+        description: error instanceof Error ? error.message : 'Failed to open billing portal. Please try again.',
         variant: "destructive",
       })
     } finally {
-      setIsUpdatingSubscription(false)
-    }
-  }
-
-  const handleCancelSubscription = async () => {
-    if (!userData?.data?.stripe_subscription_id) {
-      toast({
-        title: "Error",
-        description: "No active subscription found",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsCancelingSubscription(true)
-    try {
-      const response = await fetch('/api/stripe/cancel-subscription', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          subscriptionId: userData.data.stripe_subscription_id,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to cancel subscription')
-      }
-
-      toast({
-        title: "Subscription Canceled",
-        description: data.message || "Your subscription will be canceled at the end of the current billing period",
-      })
-
-      // Refresh user data
-      setTimeout(() => window.location.reload(), 2000)
-    } catch (error) {
-      console.error('Error canceling subscription:', error)
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : 'Failed to cancel subscription',
-        variant: "destructive",
-      })
-    } finally {
-      setIsCancelingSubscription(false)
+      setIsOpeningPortal(false)
     }
   }
 
@@ -392,108 +328,65 @@ export default function DashboardPage() {
       {/* Subscription Management Section */}
       {(userData?.data?.subscription_status === 'active' || userData?.data?.subscription_status === 'cancelling') && userData?.data?.stripe_subscription_id && (
         <div className="mt-8 space-y-6">
-                      <div>
-              <h2 className="text-xl font-semibold mb-2">Subscription Management</h2>
-              <p className="text-muted-foreground text-sm">
-                {userData?.data?.subscription_status === 'cancelling' 
-                  ? "Your subscription is being cancelled. You can still manage it until the end of your billing period."
-                  : "Manage your subscription and bot limits"
-                }
-              </p>
-            </div>
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Subscription Management</h2>
+            <p className="text-muted-foreground text-sm">
+              {userData?.data?.subscription_status === 'cancelling' 
+                ? "Your subscription is being cancelled. You can still manage it until the end of your billing period."
+                : "Manage your subscription, payment methods, and billing information through Stripe."
+              }
+            </p>
+          </div>
 
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Settings className="h-5 w-5" />
-                Change Bot Limit
+                Manage Subscription
               </CardTitle>
               <CardDescription>
-                Adjust your concurrent bot limit. Changes are prorated and take effect immediately.
+                Update your subscription, payment methods, and billing information through Stripe's secure customer portal.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <Label htmlFor="bot-count-slider">
-                  Bot Count: {newBotCount[0]} bots
-                </Label>
-                <Slider
-                  id="bot-count-slider"
-                  min={5}
-                  max={2000}
-                  step={1}
-                  value={newBotCount}
-                  onValueChange={setNewBotCount}
-                  disabled={userData?.data?.subscription_status === 'cancelling'}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>5 bots</span>
-                  <span>2000 bots</span>
-                  </div>
-                <div className="p-4 bg-muted rounded-lg">
-                  <div className="text-sm font-medium">
-                    New Price: ${calculatePrice(newBotCount[0])}/month
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {getPricingTier(newBotCount[0]).charAt(0).toUpperCase() + getPricingTier(newBotCount[0]).slice(1)} tier
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-4">
+            <CardContent>
+              <div className="space-y-3">
                 <Button 
-                  onClick={handleUpdateSubscription}
-                  disabled={isUpdatingSubscription || newBotCount[0] === userData?.max_concurrent_bots || userData?.data?.subscription_status === 'cancelling'}
-                  className="flex-1"
-                  title={`Update button disabled: isUpdating=${isUpdatingSubscription}, newCount=${newBotCount[0]}, currentCount=${userData?.max_concurrent_bots}, status=${userData?.data?.subscription_status}`}
+                  onClick={handleOpenStripePortal} 
+                  disabled={isOpeningPortal}
+                  className="w-full"
                 >
-                  {isUpdatingSubscription ? (
+                  {isOpeningPortal ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Updating...
+                      Opening Portal...
                     </>
                   ) : (
-                    'Update Subscription'
+                    'Open Billing Portal'
                   )}
                 </Button>
                 
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive" className="w-full sm:w-auto">
-                      Cancel Subscription
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Cancel Subscription</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to cancel your subscription? You'll continue to have access until the end of your current billing period ({formatPaymentDueDate(userData?.data?.subscription_end_date)}).
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Keep Subscription</AlertDialogCancel>
-                      <AlertDialogAction 
-                        onClick={handleCancelSubscription}
-                        disabled={isCancelingSubscription}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      >
-                        {isCancelingSubscription ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Canceling...
-                          </>
-                        ) : (
-                          'Yes, Cancel Subscription'
-                        )}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-                  </div>
-                </CardContent>
-              </Card>
-      </div>
+                {/* Test button for debugging */}
+                <Button 
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/stripe/test-portal')
+                      const data = await response.json()
+                      console.log('Portal test result:', data)
+                      alert(JSON.stringify(data, null, 2))
+                    } catch (error) {
+                      console.error('Test failed:', error)
+                      alert('Test failed: ' + error)
+                    }
+                  }}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Test Portal Configuration
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* Subscription Info */}
