@@ -54,9 +54,9 @@ CONFIG: Dict[str, Any] = {
 }
 
 # ---- Stripe initialisation -------------------------------------------------
-api_key = os.getenv("STRIPE_API_KEY", "REPLACED_SECRET_KEY")
+api_key = os.getenv("STRIPE_SECRET_KEY")
 if not api_key:
-    sys.exit("❌  STRIPE_API_KEY env var is required")
+    sys.exit("❌  STRIPE_SECRET_KEY env var is required")
 
 stripe.api_key = api_key
 stripe.api_version = "2023-10-16"
