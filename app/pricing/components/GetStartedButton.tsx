@@ -46,6 +46,35 @@ export function GetStartedButton({
       const data = await response.json()
 
       if (!response.ok) {
+        if (data.error === 'You already have an active subscription') {
+          // User already has subscription, redirect to billing portal
+          alert('You already have an active subscription. Redirecting to billing portal...')
+          
+          // Redirect to billing portal after a short delay
+          setTimeout(async () => {
+            try {
+              const portalResponse = await fetch('/api/stripe/create-portal-session', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              })
+              
+              const portalData = await portalResponse.json()
+              if (portalData.url) {
+                window.location.href = portalData.url
+              } else {
+                window.location.href = '/dashboard'
+              }
+            } catch (portalError) {
+              console.error('Error opening portal:', portalError)
+              window.location.href = '/dashboard'
+            }
+          }, 2000)
+          
+          return
+        }
+        
         throw new Error(data.error || 'Failed to create checkout session')
       }
 

@@ -9,19 +9,14 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('[Portal] Starting portal session creation...')
-    
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.email) {
-      console.log('[Portal] No session or email found')
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       )
     }
-
-    console.log(`[Portal] Looking for customer with email: ${session.user.email}`)
 
     // Get customer by email
     const customers = await stripe.customers.list({
@@ -29,10 +24,7 @@ export async function POST(request: NextRequest) {
       limit: 1,
     })
 
-    console.log(`[Portal] Found ${customers.data.length} customers`)
-
     if (!customers.data.length) {
-      console.log('[Portal] No customer found')
       return NextResponse.json(
         { error: 'No customer found. Please create a subscription first.' },
         { status: 404 }
@@ -40,15 +32,32 @@ export async function POST(request: NextRequest) {
     }
 
     const customer = customers.data[0]
-    console.log(`[Portal] Using customer ID: ${customer.id}`)
 
-    // Create portal session
+    // Get user's subscription status to customize portal experience
+    const subscriptions = await stripe.subscriptions.list({
+      customer: customer.id,
+      status: 'all',
+      limit: 5,
+    })
+
+    const activeSubscription = subscriptions.data.find(sub => 
+      sub.status === 'active' || sub.status === 'trialing'
+    )
+
+    console.log(`[Portal Session] Customer ${customer.id} has ${subscriptions.data.length} subscriptions, active/trialing: ${activeSubscription ? activeSubscription.status : 'none'}`)
+
+    // Create enhanced portal session
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customer.id,
       return_url: `${request.headers.get('origin') || 'http://localhost:3001'}/dashboard`,
+      // For trial users, direct them to payment method setup
+      ...(activeSubscription?.status === 'trialing' && {
+        flow_data: {
+          type: 'payment_method_update',
+        },
+      }),
     })
 
-    console.log(`[Portal] Created portal session with URL: ${portalSession.url}`)
     return NextResponse.json({ url: portalSession.url })
 
   } catch (error) {

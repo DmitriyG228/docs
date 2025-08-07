@@ -1,0 +1,24 @@
+
+> my-v0-project@0.1.0 dev
+> npm run setup-docs && NEXTAUTH_URL='http://localhost:3001' next dev -p 3001
+
+
+> my-v0-project@0.1.0 setup-docs
+> node scripts/setup-docs.js
+
+📋 Setting up docs project...
+✅ All required environment variables are configured
+✅ Stripe configuration complete
+🚀 Setup complete - starting Next.js dev server...
+
+ ⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use 0.0.0.0:3001
+    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3001)
+    at new Promise (<anonymous>) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '0.0.0.0',
+  port: 3001
+}
+[?25h

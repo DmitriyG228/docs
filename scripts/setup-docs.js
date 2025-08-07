@@ -1,65 +1,43 @@
-const fs = require('fs');
-const path = require('path');
+#!/usr/bin/env node
 
-// Path to root docs directory
-const rootDocsDir = path.join(__dirname, '../../docs');
-// Path to portal docs directory
-const portalDocsDir = path.join(__dirname, '../docs');
+/**
+ * Setup script for docs project
+ * This script runs before the Next.js dev server starts
+ */
 
-// Ensure the docs directory exists
-if (!fs.existsSync(portalDocsDir)) {
-  console.log('Creating docs directory in portal...');
-  fs.mkdirSync(portalDocsDir, { recursive: true });
-}
+// Load environment variables from .env file
+require('dotenv').config();
 
-// Check if the root docs directory exists
-if (fs.existsSync(rootDocsDir)) {
-  // Copy markdown files from root docs to portal docs
-  console.log('Copying markdown files from root docs to portal docs...');
-  const files = fs.readdirSync(rootDocsDir);
-  
-  for (const file of files) {
-    if (file.endsWith('.md')) {
-      const sourcePath = path.join(rootDocsDir, file);
-      const destPath = path.join(portalDocsDir, file);
-      
-      try {
-        fs.copyFileSync(sourcePath, destPath);
-        console.log(`Copied ${file} to portal docs directory`);
-      } catch (error) {
-        console.error(`Failed to copy ${file}: ${error.message}`);
-      }
-    }
-  }
+console.log('📋 Setting up docs project...');
+
+// Check if required environment variables are present
+const requiredEnvVars = [
+  'NEXTAUTH_SECRET',
+  'GOOGLE_CLIENT_ID', 
+  'GOOGLE_CLIENT_SECRET',
+  'ADMIN_API_URL',
+  'ADMIN_API_TOKEN'
+];
+
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingVars.length > 0) {
+  console.warn('⚠️  Warning: Missing environment variables:', missingVars.join(', '));
+  console.log('💡 Make sure to configure these in your .env file');
 } else {
-  console.log('Root docs directory does not exist.');
-  
-  // Create a sample markdown file if none exist
-  if (fs.readdirSync(portalDocsDir).filter(file => file.endsWith('.md')).length === 0) {
-    console.log('Creating sample documentation file...');
-    
-    const sampleContent = `# Sample Documentation
-
-## Introduction
-
-This is a sample documentation file. Replace it with your own documentation.
-
-## Getting Started
-
-1. Create markdown files in the docs directory
-2. They will automatically appear in the documentation page
-
-## Features
-
-- Automatically renders markdown files
-- Supports syntax highlighting
-- Generates table of contents
-- Allows navigation between files
-`;
-    
-    fs.writeFileSync(path.join(portalDocsDir, 'sample.md'), sampleContent);
-    console.log('Created sample.md');
-  }
+  console.log('✅ All required environment variables are configured');
 }
 
-console.log('Docs setup complete!'); 
+// Check if Stripe is configured
+const stripeVars = ['STRIPE_SECRET_KEY', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_WEBHOOK_SECRET'];
+const missingStripeVars = stripeVars.filter(varName => !process.env[varName]);
+
+if (missingStripeVars.length === 0) {
+  console.log('✅ Stripe configuration complete');
+} else {
+  console.log('💳 Stripe variables missing:', missingStripeVars.join(', '));
+}
+
+console.log('🚀 Setup complete - starting Next.js dev server...\n');
+
+process.exit(0);

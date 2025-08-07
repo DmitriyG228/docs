@@ -51,7 +51,10 @@ export function TrialStatus({
   }
 
   const trialEndDate = trialEnd ? new Date(trialEnd) : null
-  const daysLeft = trialEndDate ? Math.ceil((trialEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0
+  const timeLeft = trialEndDate ? trialEndDate.getTime() - Date.now() : 0
+  const daysLeft = Math.ceil(timeLeft / (1000 * 60 * 60 * 24))
+  const hoursLeft = Math.ceil(timeLeft / (1000 * 60 * 60))
+  const minutesLeft = Math.ceil(timeLeft / (1000 * 60))
 
   return (
     <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
@@ -61,7 +64,12 @@ export function TrialStatus({
           Trial Period Active
         </CardTitle>
         <CardDescription className="text-orange-700 dark:text-orange-300">
-          You're currently on a 7-day free trial. {daysLeft > 0 ? `${daysLeft} days remaining.` : 'Trial ending soon.'}
+          You're currently on a free trial. {
+            timeLeft <= 0 ? 'Trial has ended.' :
+            daysLeft >= 1 ? `${daysLeft} day${daysLeft > 1 ? 's' : ''} remaining.` :
+            hoursLeft >= 1 ? `${hoursLeft} hour${hoursLeft > 1 ? 's' : ''} remaining.` :
+            `${minutesLeft} minute${minutesLeft > 1 ? 's' : ''} remaining.`
+          }
         </CardDescription>
       </CardHeader>
       <CardContent>

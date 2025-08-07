@@ -37,6 +37,9 @@ interface UserData {
     subscription_tier?: string
     stripe_subscription_id?: string
     original_bot_count?: number
+    subscription_scheduled_to_cancel?: boolean
+    subscription_cancellation_date?: string
+    subscription_current_period_end?: number
   }
 }
 
@@ -51,6 +54,13 @@ export default function DashboardPage() {
     const fetchUserData = async () => {
       if (sessionStatus !== "authenticated" || !(session?.user as any)?.id) {
         setIsLoading(false)
+        return
+      }
+
+      // Check if this is a new user and redirect to trial checkout
+      if ((session?.user as any)?.isNewUser) {
+        console.log('[Dashboard] New user detected, redirecting to trial checkout')
+        window.location.href = '/trial-checkout'
         return
       }
 
@@ -154,19 +164,23 @@ export default function DashboardPage() {
     switch (status) {
       case 'active':
         return <Badge className="bg-green-100 text-green-800">Active</Badge>
+      case 'scheduled_to_cancel':
+        return <Badge className="bg-orange-100 text-orange-800">Scheduled to Cancel</Badge>
       case 'cancelling':
         return <Badge className="bg-yellow-100 text-yellow-800">Cancelling</Badge>
       case 'canceled':
         return <Badge variant="destructive">Canceled</Badge>
       case 'past_due':
         return <Badge variant="destructive">Past Due</Badge>
+      case 'trialing':
+        return <Badge className="bg-blue-100 text-blue-800">Trial</Badge>
       default:
         return <Badge variant="secondary">Free Plan</Badge>
     }
   }
 
   const isInGracePeriod = (status?: string) => {
-    return status === 'cancelling'
+    return status === 'cancelling' || status === 'scheduled_to_cancel'
   }
 
   if (sessionStatus === "loading" || isLoading) {
@@ -325,14 +339,22 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Subscription Management Section */}
-      {(userData?.data?.subscription_status === 'active' || userData?.data?.subscription_status === 'cancelling') && userData?.data?.stripe_subscription_id && (
+      {/* Subscription Management Section - Only show if user exists in Stripe */}
+      {(userData?.data?.subscription_status === 'active' || 
+        userData?.data?.subscription_status === 'scheduled_to_cancel' ||
+        userData?.data?.subscription_status === 'cancelling' || 
+        userData?.data?.subscription_status === 'trialing') && 
+       userData?.data?.stripe_subscription_id && (
         <div className="mt-8 space-y-6">
           <div>
             <h2 className="text-xl font-semibold mb-2">Subscription Management</h2>
             <p className="text-muted-foreground text-sm">
-              {userData?.data?.subscription_status === 'cancelling' 
+              {userData?.data?.subscription_status === 'scheduled_to_cancel'
+                ? "Your subscription is scheduled to cancel at the end of your current billing period. You can still manage it until then."
+                : userData?.data?.subscription_status === 'cancelling' 
                 ? "Your subscription is being cancelled. You can still manage it until the end of your billing period."
+                : userData?.data?.subscription_status === 'trialing'
+                ? "You're currently on a trial. Add a payment method to continue after your trial ends."
                 : "Manage your subscription, payment methods, and billing information through Stripe."
               }
             </p>
@@ -342,10 +364,15 @@ export default function DashboardPage() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Settings className="h-5 w-5" />
-                Manage Subscription
+                {userData?.data?.subscription_status === 'trialing' ? 'Manage Trial & Payment' : 'Manage Subscription'}
               </CardTitle>
               <CardDescription>
-                Update your subscription, payment methods, and billing information through Stripe's secure customer portal.
+                {userData?.data?.subscription_status === 'scheduled_to_cancel'
+                  ? "Your subscription will end soon. You can still manage your billing information and cancel the scheduled cancellation if needed."
+                  : userData?.data?.subscription_status === 'trialing' 
+                  ? "Add a payment method to continue using Vexa after your trial ends, or upgrade your plan through Stripe's secure customer portal."
+                  : "Update your subscription, payment methods, and billing information through Stripe's secure customer portal."
+                }
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -360,29 +387,14 @@ export default function DashboardPage() {
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Opening Portal...
                     </>
+                  ) : userData?.data?.subscription_status === 'trialing' ? (
+                    'Add Payment Method'
                   ) : (
                     'Open Billing Portal'
                   )}
                 </Button>
                 
-                {/* Test button for debugging */}
-                <Button 
-                  onClick={async () => {
-                    try {
-                      const response = await fetch('/api/stripe/test-portal')
-                      const data = await response.json()
-                      console.log('Portal test result:', data)
-                      alert(JSON.stringify(data, null, 2))
-                    } catch (error) {
-                      console.error('Test failed:', error)
-                      alert('Test failed: ' + error)
-                    }
-                  }}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Test Portal Configuration
-                </Button>
+
               </div>
             </CardContent>
           </Card>
@@ -406,6 +418,34 @@ export default function DashboardPage() {
                   <span className="text-sm text-muted-foreground">Plan:</span>
                   <span className="text-sm">{userData.data.subscription_tier}</span>
                 </div>
+              )}
+              {userData.data.subscription_status && (
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Status:</span>
+                  <div className="flex items-center gap-2">
+                    {getSubscriptionStatus(userData.data.subscription_status)}
+                  </div>
+                </div>
+              )}
+              {/* Show cancellation information for scheduled cancellations */}
+              {userData.data.subscription_scheduled_to_cancel && userData.data.subscription_cancellation_date && (
+                <>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Cancellation Date:</span>
+                    <span className="text-sm text-orange-600 font-medium">
+                      {new Date(userData.data.subscription_cancellation_date).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Period End:</span>
+                    <span className="text-sm text-muted-foreground">
+                      {userData.data.subscription_current_period_end 
+                        ? new Date(userData.data.subscription_current_period_end * 1000).toLocaleDateString()
+                        : 'N/A'
+                      }
+                    </span>
+                  </div>
+                </>
               )}
           </CardContent>
         </Card>
